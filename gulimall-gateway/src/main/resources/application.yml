@@ -1,9 +1,9 @@
 spring:
   cloud:
-    sentinel:
-      transport:
+#    sentinel:
+#      transport:
         #配置sentinel dashboard地址
-        dashboard: localhost:8080
+#        dashboard: localhost:8080
     gateway:
       routes:
 #        - id: test_route
@@ -68,7 +68,7 @@ spring:
         - id: gulimall_host_route
           uri: lb://gulimall-product
           predicates:
-            - Host=gulimall.com,item.gulimall.com
+            - Host=www.gulimall.com,www.item.gulimall.com
 
         - id: gulimall_search_route
           uri: lb://gulimall-search
