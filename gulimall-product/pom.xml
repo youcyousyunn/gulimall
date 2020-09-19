@@ -70,7 +70,7 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
+        <!-- 代替netty,避免压力测试时内存溢出(io.netty.util.internal.OutOfDirectMemoryError) -->
         <dependency>
             <groupId>redis.clients</groupId>
             <artifactId>jedis</artifactId>
