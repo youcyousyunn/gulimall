@@ -35,20 +35,16 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service("categoryService")
 public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity> implements CategoryService {
-
     private Map<String,Object> cache = new HashMap<>();
-
     // @Resource
     // private CategoryDao categoryDao;
-
     @Resource
     private CategoryBrandRelationService categoryBrandRelationService;
-
     @Resource
     private StringRedisTemplate stringRedisTemplate;
-
     @Autowired
     private RedissonClient redissonClient;
+
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -264,11 +260,10 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
     //1)、springboot2.0以后默认使用lettuce操作redis的客户端，它使用通信
     //2)、lettuce的bug导致netty堆外内存溢出   可设置：-Dio.netty.maxDirectMemory
     //解决方案：不能直接使用-Dio.netty.maxDirectMemory去调大堆外内存
-    //1)、升级lettuce客户端。      2）、切换使用jedis
+    //1)、升级lettuce客户端
+    //2）、切换使用jedis
     // @Override
     public Map<String, List<Catelog2Vo>> getCatalogJson2() {
-        //给缓存中放json字符串，拿出的json字符串，反序列为能用的对象
-
         /**
          * 1、空结果缓存：解决缓存穿透问题
          * 2、设置过期时间(加随机值)：解决缓存雪崩
@@ -280,20 +275,15 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         ValueOperations<String, String> ops = stringRedisTemplate.opsForValue();
         String catalogJson = ops.get("catalogJson");
         if (StringUtils.isEmpty(catalogJson)) {
-            System.out.println("缓存不命中...查询数据库...");
             //2、缓存中没有数据，查询数据库
             Map<String, List<Catelog2Vo>> catalogJsonFromDb = getCatalogJsonFromDbWithRedissonLock();
-
             return catalogJsonFromDb;
         }
 
-        System.out.println("缓存命中...直接返回...");
         //转为指定的对象
         Map<String, List<Catelog2Vo>> result = JSON.parseObject(catalogJson,new TypeReference<Map<String, List<Catelog2Vo>>>(){});
-
         return result;
     }
-
 
     /**
      * 缓存里的数据如何和数据库的数据保持一致？？
@@ -302,59 +292,48 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
      * 2)、失效模式
      * @return
      */
-
     public Map<String, List<Catelog2Vo>> getCatalogJsonFromDbWithRedissonLock() {
-
-        //1、占分布式锁。去redis占坑
-        //（锁的粒度，越细越快:具体缓存的是某个数据，11号商品） product-11-lock
-        //RLock catalogJsonLock = redissonClient.getLock("catalogJson-lock");
-        //创建读锁
+        //1、占分布式锁。去redis占坑创建读锁
+        //lock.lock(); //阻塞式等待
+        //锁默认的过期时间是30s,redisson会自动续期,避免业务执行时间长锁被自动删掉的问题
         RReadWriteLock readWriteLock = redissonClient.getReadWriteLock("catalogJson-lock");
-
         RLock rLock = readWriteLock.readLock();
-
         Map<String, List<Catelog2Vo>> dataFromDb = null;
         try {
             rLock.lock();
             //加锁成功...执行业务
             dataFromDb = getDataFromDb();
         } finally {
+            //2、释放分布式锁
+            //提问：假设解锁代码没有执行会不会出现死锁？ 存在默认的过期时间=30s,因此不会出现死锁
             rLock.unlock();
         }
-        //先去redis查询下保证当前的锁是自己的
-        //获取值对比，对比成功删除=原子性 lua脚本解锁
-        // String lockValue = stringRedisTemplate.opsForValue().get("lock");
-        // if (uuid.equals(lockValue)) {
-        //     //删除我自己的锁
-        //     stringRedisTemplate.delete("lock");
-        // }
 
         return dataFromDb;
-
     }
 
 
     /**
      * 从数据库查询并封装数据::分布式锁
+     * 分布式锁的基本原理
+     * 所有服务都去同一个地方占坑,这个地方可以是redis,也可以是数据库
+     * redis是利用set NX（即不存在时设置值）,即使多线程也只能成功一个
      * @return
      */
     public Map<String, List<Catelog2Vo>> getCatalogJsonFromDbWithRedisLock() {
-
-        //1、占分布式锁。去redis占坑      设置过期时间必须和加锁是同步的，保证原子性（避免死锁）
+        //1,占分布式锁(去redis占坑),设置过期时间必须和加锁是同步的(保证原子性（避免死锁）)
         String uuid = UUID.randomUUID().toString();
         Boolean lock = stringRedisTemplate.opsForValue().setIfAbsent("lock", uuid,300,TimeUnit.SECONDS);
         if (lock) {
-            System.out.println("获取分布式锁成功...");
+            log.info("获取分布式锁成功...");
             Map<String, List<Catelog2Vo>> dataFromDb = null;
             try {
                 //加锁成功...执行业务
                 dataFromDb = getDataFromDb();
             } finally {
                 String script = "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end";
-
-                //删除锁
+                //2,释放分布式锁(删除锁),对比与删除必须保证是原子的（目的是保证删除的当前锁是自己的）
                 stringRedisTemplate.execute(new DefaultRedisScript<Long>(script, Long.class), Arrays.asList("lock"), uuid);
-
             }
             //先去redis查询下保证当前的锁是自己的
             //获取值对比，对比成功删除=原子性 lua脚本解锁
@@ -366,11 +345,11 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
 
             return dataFromDb;
         } else {
-            System.out.println("获取分布式锁失败...等待重试...");
+            log.info("获取分布式锁失败!!!等待重试...");
             //加锁失败...重试机制
-            //休眠一百毫秒
+            //休眠一百毫秒,尽可能避免内存溢出
             try { TimeUnit.MILLISECONDS.sleep(100); } catch (InterruptedException e) { e.printStackTrace(); }
-            return getCatalogJsonFromDbWithRedisLock();     //自旋的方式
+            return getCatalogJsonFromDbWithRedisLock(); //自旋的方式
         }
     }
 
@@ -384,8 +363,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
 
             return result;
         }
-
-        System.out.println("查询了数据库");
+        log.info("查询了数据库");
 
         /**
          * 将数据库的多次查询变为一次
@@ -397,21 +375,20 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         List<CategoryEntity> level1Categorys = getParent_cid(selectList, 0L);
 
         //封装数据
-        Map<String, List<Catelog2Vo>> parentCid = level1Categorys.stream().collect(Collectors.toMap(k -> k.getCatId().toString(), v -> {
+        Map<String, List<Catelog2Vo>> resultMap = level1Categorys.stream().collect(Collectors.toMap(k -> k.getCatId().toString(), v -> {
             //1、每一个的一级分类,查到这个一级分类的二级分类
-            List<CategoryEntity> categoryEntities = getParent_cid(selectList, v.getCatId());
+            List<CategoryEntity> level2Categorys = getParent_cid(selectList, v.getCatId());
 
             //2、封装上面的结果
             List<Catelog2Vo> catelog2Vos = null;
-            if (categoryEntities != null) {
-                catelog2Vos = categoryEntities.stream().map(l2 -> {
+            if (level2Categorys != null) {
+                catelog2Vos = level2Categorys.stream().map(l2 -> {
                     Catelog2Vo catelog2Vo = new Catelog2Vo(v.getCatId().toString(), null, l2.getCatId().toString(), l2.getName().toString());
 
                     //1、找当前二级分类的三级分类封装成vo
-                    List<CategoryEntity> level3Catelog = getParent_cid(selectList, l2.getCatId());
-
-                    if (level3Catelog != null) {
-                        List<Catelog2Vo.Category3Vo> category3Vos = level3Catelog.stream().map(l3 -> {
+                    List<CategoryEntity> level3Categorys = getParent_cid(selectList, l2.getCatId());
+                    if (level3Categorys != null) {
+                        List<Catelog2Vo.Category3Vo> category3Vos = level3Categorys.stream().map(l3 -> {
                             //2、封装成指定格式
                             Catelog2Vo.Category3Vo category3Vo = new Catelog2Vo.Category3Vo(l2.getCatId().toString(), l3.getCatId().toString(), l3.getName());
 
@@ -428,10 +405,9 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         }));
 
         //3、将查到的数据放入缓存,将对象转为json
-        String valueJson = JSON.toJSONString(parentCid);
+        String valueJson = JSON.toJSONString(resultMap);
         stringRedisTemplate.opsForValue().set("catalogJson", valueJson, 1, TimeUnit.DAYS);
-
-        return parentCid;
+        return resultMap;
     }
 
     /**
@@ -439,7 +415,6 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
      * @return
      */
     public Map<String, List<Catelog2Vo>> getCatalogJsonFromDbWithLocalLock() {
-
         // //如果缓存中有就用缓存的
         // Map<String, List<Catelog2Vo>> catalogJson = (Map<String, List<Catelog2Vo>>) cache.get("catalogJson");
         // if (cache.get("catalogJson") == null) {
@@ -451,12 +426,9 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         //1、synchronized (this)：SpringBoot所有的组件在容器中都是单例的。
         //TODO 本地锁：synchronized，JUC（Lock),在分布式情况下，想要锁住所有，必须使用分布式锁
         synchronized (this) {
-
             //得到锁以后，我们应该再去缓存中确定一次，如果没有才需要继续查询
             return getDataFromDb();
         }
-
-
     }
 
     /**
