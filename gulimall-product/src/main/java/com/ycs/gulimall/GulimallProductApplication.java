@@ -44,6 +44,23 @@ import org.springframework.session.data.redis.config.annotation.web.http.EnableR
  *    微服务任何配置信息，任何配置文件都可以放在配置中心中
  * 2), 只需要在bootstrap.properties配置文件中配置需要加载哪些配置文件即可
  * 3), 配置中心有的优先使用配置中心的
+ *
+ *
+ * 整合SpringCache,简化缓存开发
+ * 1), 引入依赖
+ * 　　spring-boot-starter-cache, spring-boot-starter-data-redis
+ * 2), 写配置
+ *    ①, 自动配置了哪些
+ * 　　 CacheAutoConfiguration会导入RedisCacheConfiguration
+ *     自动配置好缓存管理器RedisCacheManager
+ *    ②, 配置使用redis作为缓存
+ * 　　 spring.cache.type=redis
+ * 3), 测试使用缓存
+ * 　　@Cacheable: 触发将数据保存到缓存操作
+ *    @CacheEvict: 触发将数据从缓存删除操作
+ *    @CachePut: 不影响方法执行更新缓存
+ *    @Caching: 组合以上多个操作
+ *    @CacheConfig: 在类级别共享缓存的相同配置
  */
 @EnableRedisHttpSession     //开启springsession
 @EnableCaching      //开启缓存功能
