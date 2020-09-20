@@ -3,6 +3,7 @@ package com.ycs.gulimall.web;
 import com.ycs.gulimall.entity.CategoryEntity;
 import com.ycs.gulimall.service.CategoryService;
 import com.ycs.gulimall.vo.Catelog2Vo;
+import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,6 +22,7 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @Controller
+@Slf4j
 public class IndexController {
     @Resource
     private CategoryService categoryService;
@@ -43,7 +45,6 @@ public class IndexController {
         return "index";
     }
 
-
     /**
      * 获取所有级别分类数据
      * @return
@@ -55,35 +56,38 @@ public class IndexController {
         return catalogJson;
     }
 
-
+    /**
+     * 测试redisson锁的过期
+     * @return
+     */
     @ResponseBody
-    @GetMapping(value = "/hello")
-    public String hello() {
+    @GetMapping(value = "/lock")
+    public String lock() {
         //1、获取一把锁，只要锁的名字一样，就是同一把锁
         RLock myLock = redisson.getLock("my-lock");
 
-        //2、加锁
-        myLock.lock();      //阻塞式等待。默认加的锁都是30s
-        //1）、锁的自动续期，如果业务超长，运行期间自动锁上新的30s。不用担心业务时间长，锁自动过期被删掉
-        //2）、加锁的业务只要运行完成，就不会给当前锁续期，即使不手动解锁，锁默认会在30s内自动过期，不会产生死锁问题
-        // myLock.lock(10,TimeUnit.SECONDS);   //10秒钟自动解锁,自动解锁时间一定要大于业务执行时间
-        //问题：在锁时间到了以后，不会自动续期
-        //1、如果我们传递了锁的超时时间，就发送给redis执行脚本，进行占锁，默认超时就是 我们制定的时间
-        //2、如果我们指定锁的超时时间，就使用 lockWatchdogTimeout = 30 * 1000 【看门狗默认时间】
-        //只要占锁成功，就会启动一个定时任务【重新给锁设置过期时间，新的过期时间就是看门狗的默认时间】,每隔10秒都会自动的再次续期，续成30秒
-        // internalLockLeaseTime 【看门狗时间】 / 3， 10s
+        //2、加锁,阻塞式等待。默认加的锁都是30s
+        myLock.lock();
+        /**
+         * 1,锁的自动续期
+         * 如果业务超长，运行期间自动锁上新的30s。不用担心业务时间长，锁自动过期被删掉
+         * 加锁的业务只要运行完成，就不会给当前锁续期，即使不手动解锁，锁默认会在30s内自动过期，不会产生死锁问题
+         * 只要占锁成功，就会启动一个定时任务【重新给锁设置过期时间，新的过期时间就是看门狗的默认时间=30秒】,每隔10秒就会自动的再次续期
+         * 2,自定义锁的过期时间
+         * myLock.lock(10,TimeUnit.SECONDS);   //10秒钟自动解锁,自动解锁时间一定要大于业务执行时间（在锁时间到了以后，不会自动续期）
+         */
         try {
-            System.out.println("加锁成功，执行业务..." + Thread.currentThread().getId());
+            log.info("加锁成功，执行业务..." + Thread.currentThread().getId());
             try { TimeUnit.SECONDS.sleep(20); } catch (InterruptedException e) { e.printStackTrace(); }
         } catch (Exception ex) {
             ex.printStackTrace();
         } finally {
             //3、解锁  假设解锁代码没有运行，Redisson会不会出现死锁
-            System.out.println("释放锁..." + Thread.currentThread().getId());
+            log.info("释放锁..." + Thread.currentThread().getId());
             myLock.unlock();
         }
 
-        return "hello";
+        return "success";
     }
 
 
@@ -94,10 +98,9 @@ public class IndexController {
      * 写 + 读 ：必须等待写锁释放
      * 写 + 写 ：阻塞方式
      * 读 + 写 ：有读锁。写也需要等待
-     * 只要有读或者写的存都必须等待
      * @return
      */
-    @GetMapping(value = "/write")
+    @GetMapping(value = "/lock/write")
     @ResponseBody
     public String writeValue() {
         String s = "";
@@ -108,7 +111,7 @@ public class IndexController {
             rLock.lock();
             s = UUID.randomUUID().toString();
             ValueOperations<String, String> ops = stringRedisTemplate.opsForValue();
-            ops.set("writeValue",s);
+            ops.set("write-key",s);
             TimeUnit.SECONDS.sleep(10);
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -119,7 +122,7 @@ public class IndexController {
         return s;
     }
 
-    @GetMapping(value = "/read")
+    @GetMapping(value = "/lock/read")
     @ResponseBody
     public String readValue() {
         String s = "";
@@ -129,7 +132,7 @@ public class IndexController {
         try {
             rLock.lock();
             ValueOperations<String, String> ops = stringRedisTemplate.opsForValue();
-            s = ops.get("writeValue");
+            s = ops.get("write-key");
             try { TimeUnit.SECONDS.sleep(10); } catch (InterruptedException e) { e.printStackTrace(); }
         } catch (Exception e) {
             e.printStackTrace();
@@ -142,59 +145,54 @@ public class IndexController {
 
 
     /**
-     * 车库停车
-     * 3车位
-     * 信号量也可以做分布式限流
+     * 车库停车示例讲解多线程之信号量
+     * 信号量也可以用作分布式限流
+     * 设置初始值key=park,value=3
+     * @return
+     * @throws InterruptedException
      */
-    @GetMapping(value = "/park")
+    @GetMapping(value = "/car/park")
     @ResponseBody
     public String park() throws InterruptedException {
-
         RSemaphore park = redisson.getSemaphore("park");
-        park.acquire();     //获取一个信号、获取一个值,占一个车位
-        boolean flag = park.tryAcquire();
+        park.acquire(); //获取一个信号(获取一个值,占一个车位), 阻塞等待
+//        boolean flag = park.tryAcquire(); // 尝试去获取车位,非阻塞(获取成功返回true,否则返回false)
+//        if (flag) {
+//            //执行业务
+//        } else {
+//            return "error";
+//        }
 
-        if (flag) {
-            //执行业务
-        } else {
-            return "error";
-        }
-
-        return "ok=>" + flag;
+        return "获取到车位!";
     }
 
-    @GetMapping(value = "/go")
+    @GetMapping(value = "/car/go")
     @ResponseBody
     public String go() {
         RSemaphore park = redisson.getSemaphore("park");
-        park.release();     //释放一个车位
-        return "ok";
+        park.release(); //释放一个车位
+        return "停车场一辆车开走,空出一个车位...";
     }
 
-
     /**
-     * 放假、锁门
-     * 1班没人了
-     * 5个班，全部走完，我们才可以锁大门
-     * 分布式闭锁
+     * 店铺打烊示例讲解多线程计数器
+     * @return
+     * @throws InterruptedException
      */
-
-    @GetMapping(value = "/lockDoor")
+    @GetMapping(value = "/shop/lockDoor")
     @ResponseBody
     public String lockDoor() throws InterruptedException {
         RCountDownLatch door = redisson.getCountDownLatch("door");
         door.trySetCount(5);
         door.await();       //等待闭锁完成
-
-        return "放假了...";
+        return "顾客都走了,店铺打烊了!";
     }
 
-    @GetMapping(value = "/gogogo/{id}")
+    @GetMapping(value = "/shop/leave/{id}")
     @ResponseBody
-    public String gogogo(@PathVariable("id") Long id) {
+    public String leave(@PathVariable("id") Long id) {
         RCountDownLatch door = redisson.getCountDownLatch("door");
-        door.countDown();       //计数-1
-        return id + "班的人都走了...";
+        door.countDown(); //计数-1
+        return id + "号顾客走了...";
     }
-
 }
