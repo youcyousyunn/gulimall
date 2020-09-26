@@ -59,29 +59,21 @@ public class SearchResult {
 
     @Data
     public static class BrandVo {
-
         private Long brandId;
-
         private String brandName;
-
         private String brandImg;
     }
 
     @Data
     public static class AttrVo {
-
         private Long attrId;
-
         private String attrName;
-
         private List<String> attrValue;
     }
 
     @Data
     public static class CatalogVo {
-
         private Long catalogId;
-
         private String catalogName;
     }
 }

@@ -17,7 +17,7 @@ public class SearchController {
 
 
     /**
-     * 自动将页面提交过来的所有请求参数封装成我们指定的对象
+     * 根据请求参数搜索
      * @param param
      * @return
      */
