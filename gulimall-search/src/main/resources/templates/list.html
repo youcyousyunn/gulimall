@@ -5,11 +5,11 @@
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link rel="stylesheet" href="/search/./css/index.css">
+    <title>商品搜索</title>
+    <link rel="stylesheet" href="/search/css/index.css">
     <link rel="stylesheet" type="text/css" href="/search/font/iconfont.css">
-    <!--<script src="/search/./js/jquery-3.2.1.min.js"></script>-->
-    <script src="/search/./js/jquery-1.12.4.js"></script>
-    <title>Document</title>
+<!--    <script src="/search/js/jquery-3.2.1.min.js"></script>-->
+    <script src="/search/js/jquery-1.12.4.js"></script>
 </head>
 <body>
 <!--头部-->
@@ -17,7 +17,7 @@
     <div class="header_head_box">
         <b class="header_head_p">
             <div style="overflow: hidden">
-                <a href="http://gulimall.com" class="header_head_p_a1" style="width:73px;">
+                <a href="http://www.gulimall.com" class="header_head_p_a1" style="width:73px;">
                     谷粒商城首页
                 </a>
                 <a href="/search/#" class="header_head_p_a">
@@ -400,7 +400,7 @@
 <!--搜索导航-->
 <div class="header_sous">
     <div class="logo">
-        <a href="http://www.gulimall.com"><img src="/search/./image/logo1.jpg" alt=""></a>
+        <a href="http://www.gulimall.com"><img src="/search/image/logo1.jpg" alt=""></a>
     </div>
     <div class="header_form">
         <input id="keyword_input" type="text" placeholder="手机" th:value="${param.keyword}"/>
@@ -677,7 +677,7 @@
                         <a href="/search/#" class="mc_a"><img src="/search/./img/5a28b5a1n8a5c095f.jpg"
                                                                      alt=""></a>
                         <div class="mc_div">
-                            <a href="/search/#" class="mc_div_a1">
+                            <a href="http://www.item.gulimall.com/1.html" class="mc_div_a1">
                                 <em>华为 HUAWEI nova 2S 全面屏四摄 6GB +64GB 曜石黑 移动联通电信4G手机 双卡双待</em>
                             </a>
                             <p>
@@ -807,8 +807,8 @@
                     <div class="sl_ext">
                         <a href="/search/#">
                             更多
-                            <i style='background: url("image/search.ele.png")no-repeat 3px 7px'></i>
-                            <b style='background: url("image/search.ele.png")no-repeat 3px -44px'></b>
+                            <i style="background:url('/search/image/search.ele.png') no-repeat 3px 7px"></i>
+                            <b style="background:url('/search/image/search.ele.png') no-repeat 3px -44px"></b>
                         </a>
                         <a href="/search/#">
                             多选
@@ -837,8 +837,8 @@
                     <div class="sl_ext">
                         <a href="/search/#">
                             更多
-                            <i style='background: url("image/search.ele.png")no-repeat 3px 7px'></i>
-                            <b style='background: url("image/search.ele.png")no-repeat 3px -44px'></b>
+                            <i style='background: url("/search/image/search.ele.png")no-repeat 3px 7px'></i>
+                            <b style='background: url("/search/image/search.ele.png")no-repeat 3px -44px'></b>
                         </a>
                         <a href="/search/#">
                             多选
@@ -1885,7 +1885,12 @@
     </div>
 </div>
 
-<script>
+<script type="text/javascript">
+    function searchByKeyword() {
+        debugger
+        searchProducts("keyword", $("#keyword_input").val());
+    }
+
     $(".sl_ext a:nth-child(1)").hover(function () {
         $(this).children("b").stop(true).animate({top: "3px"}, 50);
         $(this).children("i").stop(true).animate({top: "-23px"}, 50)
@@ -2026,9 +2031,10 @@
     }
 
 
-    function searchByKeyword() {
-        searchProducts("keyword", $("#keyword_input").val());
-    }
+    // function searchByKeyword() {
+    //     debugger
+    //     searchProducts("keyword", $("#keyword_input").val());
+    // }
 
     $(".page_a").click(function () {
         var pn = $(this).attr("pn");
@@ -2043,6 +2049,7 @@
     })
 
     function replaceParamVal(url, paramName, replaceVal,forceAdd) {
+        debugger
         var oUrl = url.toString();
         var nUrl;
         if (oUrl.indexOf(paramName) != -1) {
@@ -2068,7 +2075,7 @@
 
     $(".sort_a").click(function () {
         changeStyle(this);
-        let sort = $(this).attr("sort");
+        var sort = $(this).attr("sort");
         sort = $(this).hasClass("desc") ? sort + "_desc" : sort + "_asc";
         location.href = replaceParamVal(location.href, "sort", sort,false);
 
@@ -2081,7 +2088,7 @@
         // color: #fff; border-color: #e4393c; background: #e4393c
         $(".sort_a").css({"color": "#333", "border-color": "#ccc", "background": "#fff"});
         $(".sort_a").each(function () {
-            let text = $(this).text().replace("↓", "").replace("↑", "");
+            var text = $(this).text().replace("↓", "").replace("↑", "");
             $(this).text(text);
         })
 
@@ -2089,11 +2096,11 @@
         $(ele).toggleClass("desc");
 
         if ($(ele).hasClass("desc")) {
-            let text = $(ele).text().replace("↓", "").replace("↑", "");
+            var text = $(ele).text().replace("↓", "").replace("↑", "");
             text = text + "↓";
             $(ele).text(text);
         } else {
-            let text = $(ele).text().replace("↓", "").replace("↑", "");
+            var text = $(ele).text().replace("↓", "").replace("↑", "");
             text = text + "↑";
             $(ele).text(text);
         }
@@ -2101,10 +2108,10 @@
 
 
     $("#skuPriceSearchBtn").click(function () {
-        let from = $(`#skuPriceFrom`).val();
-        let to = $(`#skuPriceTo`).val();
+        var from = $("#skuPriceFrom").val();
+        var to = $("#skuPriceTo").val();
 
-        let query = from + "_" + to;
+        var query = from + "_" + to;
         location.href = replaceParamVal(location.href, "skuPrice", query,false);
     });
 
@@ -2119,8 +2126,6 @@
         }
         return false;
     });
-
-
 </script>
 </body>
 </html>
