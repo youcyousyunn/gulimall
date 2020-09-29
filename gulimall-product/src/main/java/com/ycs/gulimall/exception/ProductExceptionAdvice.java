@@ -34,7 +34,7 @@ public class ProductExceptionAdvice {
         bindingResult.getFieldErrors().forEach((fieldError) -> {
             errMap.put(fieldError.getField(),fieldError.getDefaultMessage());
         });
-        return R.error(BizCodeEnum.VAILD_EXCEPTION.getCode(),BizCodeEnum.VAILD_EXCEPTION.getMessage())
+        return R.error(BizCodeEnum.VALID_EXCEPTION.getCode(),BizCodeEnum.VALID_EXCEPTION.getMessage())
                 .put("data",errMap);
     }
 
