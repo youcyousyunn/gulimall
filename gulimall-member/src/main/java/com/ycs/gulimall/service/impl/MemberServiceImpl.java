@@ -75,7 +75,7 @@ public class MemberServiceImpl extends ServiceImpl<MemberDao, MemberEntity> impl
         memberEntity.setCreateTime(new Date());
 
         //保存数据
-//        this.baseMapper.insert(memberEntity);
+        this.baseMapper.insert(memberEntity);
     }
 
     @Override
