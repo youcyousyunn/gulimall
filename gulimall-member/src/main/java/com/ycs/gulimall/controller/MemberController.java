@@ -2,7 +2,7 @@ package com.ycs.gulimall.controller;
 
 import com.ycs.gulimall.entity.MemberEntity;
 import com.ycs.gulimall.exception.BizCodeEnum;
-import com.ycs.gulimall.exception.PhoneException;
+import com.ycs.gulimall.exception.RegisterException;
 import com.ycs.gulimall.exception.UsernameException;
 import com.ycs.gulimall.service.MemberService;
 import com.ycs.gulimall.utils.PageUtils;
@@ -17,25 +17,24 @@ import java.util.Arrays;
 import java.util.Map;
 
 
-
-/**
- * 会员
- */
 @RestController
-@RequestMapping("member/member")
+@RequestMapping("member")
 public class MemberController {
     @Autowired
     private MemberService memberService;
 
+    /**
+     * 提供给别的服务进行调用
+     * @param vo
+     * @return
+     */
     @PostMapping(value = "/register")
     public R register(@RequestBody MemberUserRegisterVo vo) {
-
         try {
             memberService.register(vo);
-        } catch (PhoneException e) {
-            return R.error(BizCodeEnum.PHONE_EXIST_EXCEPTION.getCode(),BizCodeEnum.PHONE_EXIST_EXCEPTION.getMessage());
-        } catch (UsernameException e) {
-            return R.error(BizCodeEnum.USER_EXIST_EXCEPTION.getCode(),BizCodeEnum.USER_EXIST_EXCEPTION.getMessage());
+        }
+        catch (RegisterException e) {
+            return R.error(e.getCode(), e.getMsg());
         }
 
         return R.ok();

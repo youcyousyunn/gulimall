@@ -10,8 +10,8 @@ import com.ycs.gulimall.dao.MemberDao;
 import com.ycs.gulimall.dao.MemberLevelDao;
 import com.ycs.gulimall.entity.MemberEntity;
 import com.ycs.gulimall.entity.MemberLevelEntity;
-import com.ycs.gulimall.exception.PhoneException;
-import com.ycs.gulimall.exception.UsernameException;
+import com.ycs.gulimall.exception.BizCodeEnum;
+import com.ycs.gulimall.exception.RegisterException;
 import com.ycs.gulimall.service.MemberService;
 import com.ycs.gulimall.utils.HttpClientUtils;
 import com.ycs.gulimall.utils.HttpUtils;
@@ -48,19 +48,22 @@ public class MemberServiceImpl extends ServiceImpl<MemberDao, MemberEntity> impl
     }
 
     @Override
-    public void register(MemberUserRegisterVo vo) {
-
+    public void register(MemberUserRegisterVo vo) throws RegisterException {
         MemberEntity memberEntity = new MemberEntity();
+
+        //检查用户名和手机号是否唯一
+        Integer usernameCount = this.baseMapper.selectCount(new QueryWrapper<MemberEntity>().eq("username", vo.getUserName()));
+        if (usernameCount > 0) {
+            throw new RegisterException(BizCodeEnum.USER_EXIST_EXCEPTION.getCode(),BizCodeEnum.USER_EXIST_EXCEPTION.getMessage());
+        }
+        Integer phoneCount = this.baseMapper.selectCount(new QueryWrapper<MemberEntity>().eq("mobile", vo.getPhone()));
+        if (phoneCount > 0) {
+            throw new RegisterException(BizCodeEnum.PHONE_EXIST_EXCEPTION.getCode(),BizCodeEnum.PHONE_EXIST_EXCEPTION.getMessage());
+        }
 
         //设置默认等级
         MemberLevelEntity levelEntity = memberLevelDao.getDefaultLevel();
         memberEntity.setLevelId(levelEntity.getId());
-
-        //设置其它的默认信息
-        //检查用户名和手机号是否唯一。感知异常，异常机制
-        checkPhoneUnique(vo.getPhone());
-        checkUserNameUnique(vo.getUserName());
-
         memberEntity.setNickname(vo.getUserName());
         memberEntity.setUsername(vo.getUserName());
         //密码进行MD5加密
@@ -72,28 +75,7 @@ public class MemberServiceImpl extends ServiceImpl<MemberDao, MemberEntity> impl
         memberEntity.setCreateTime(new Date());
 
         //保存数据
-        this.baseMapper.insert(memberEntity);
-    }
-
-    @Override
-    public void checkPhoneUnique(String phone) throws PhoneException {
-
-        Integer phoneCount = this.baseMapper.selectCount(new QueryWrapper<MemberEntity>().eq("mobile", phone));
-
-        if (phoneCount > 0) {
-            throw new PhoneException();
-        }
-
-    }
-
-    @Override
-    public void checkUserNameUnique(String userName) throws UsernameException {
-
-        Integer usernameCount = this.baseMapper.selectCount(new QueryWrapper<MemberEntity>().eq("username", userName));
-
-        if (usernameCount > 0) {
-            throw new UsernameException();
-        }
+//        this.baseMapper.insert(memberEntity);
     }
 
     @Override
