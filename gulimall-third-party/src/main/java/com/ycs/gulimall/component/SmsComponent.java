@@ -2,6 +2,7 @@ package com.ycs.gulimall.component;
 
 import com.ycs.gulimall.utils.HttpUtils;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpResponse;
 import org.apache.http.util.EntityUtils;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -11,6 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @ConfigurationProperties(prefix = "spring.cloud.alicloud.sms")
+@Slf4j
 @Data
 @Component
 public class SmsComponent {
@@ -20,12 +22,13 @@ public class SmsComponent {
     private String sign;
     private String appcode;
 
+
     public void sendCode(String phone,String code) {
         String method = "GET";
-        Map<String, String> headers = new HashMap<String, String>();
+        Map<String, String> headers = new HashMap<>();
         //最后在header中的格式(中间是英文空格)为Authorization:APPCODE 83359fd73fe94948385f570e3c139105
         headers.put("Authorization", "APPCODE " + appcode);
-        Map<String, String> querys = new HashMap<String, String>();
+        Map<String, String> querys = new HashMap<>();
         querys.put("code", code);
         querys.put("phone", phone);
         querys.put("skin", skin);
@@ -46,10 +49,10 @@ public class SmsComponent {
              * http://code.fegine.com/aliyun-jar.zip
              */
             HttpResponse response = HttpUtils.doGet(host, path, method, headers, querys);
-            //System.out.println(response.toString());如不输出json, 请打开这行代码，打印调试头部状态码。
+            log.info(response.toString()); //如不输出json, 请打开这行代码，打印调试头部状态码。
             //状态码: 200 正常；400 URL无效；401 appCode错误； 403 次数用完； 500 API网管错误
             //获取response的body
-            System.out.println(EntityUtils.toString(response.getEntity()));
+            log.info(EntityUtils.toString(response.getEntity()));
         } catch (Exception e) {
             e.printStackTrace();
         }
