@@ -112,9 +112,7 @@ public class LoginController {
                     attributes.addFlashAttribute("errors",errors);
                     return "redirect:http://www.auth.gulimall.com/reg.html";
                 }
-
-
-            } else {
+            } else{
                 //效验出错回到注册页面
                 Map<String, String> errors = new HashMap<>();
                 errors.put("code","验证码错误");
