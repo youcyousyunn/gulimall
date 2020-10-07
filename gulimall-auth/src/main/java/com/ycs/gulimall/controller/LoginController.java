@@ -18,6 +18,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
@@ -46,6 +47,7 @@ public class LoginController {
      * @return
      */
     @GetMapping(value = "/sms/sendCode")
+    @ResponseBody
     public R sendCode(@RequestParam("phone") String phone) {
         //1、接口防刷
         String redisCode = stringRedisTemplate.opsForValue().get(AuthConstant.SMS_CODE_CACHE_PREFIX + phone);
@@ -67,8 +69,8 @@ public class LoginController {
         stringRedisTemplate.opsForValue().set(AuthConstant.SMS_CODE_CACHE_PREFIX+phone,
                 redisStorage,10, TimeUnit.MINUTES);
 
-        thirdPartFeignService.sendCode(phone, codeNum);
-        return R.ok();
+//        thirdPartFeignService.sendCode(phone, codeNum);
+        return R.ok(codeNum);
     }
 
     /**

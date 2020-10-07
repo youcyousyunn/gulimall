@@ -21,9 +21,6 @@ import java.util.Map;
 
 import static com.ycs.gulimall.constant.AuthConstant.LOGIN_USER;
 
-/**
- * @Description: 处理社交登录请求
- **/
 
 @Slf4j
 @Controller
@@ -32,30 +29,29 @@ public class OAuth2Controller {
     private MemberFeignService memberFeignService;
 
 
+    /**
+     * 微博社交登录成功回调
+     * @param code
+     * @param session
+     * @return
+     * @throws Exception
+     */
     @GetMapping(value = "/oauth2.0/weibo/success")
-    public String weibo(@RequestParam("code") String code, HttpSession session) throws Exception {
-
+    public String weiboAuth(@RequestParam("code") String code, HttpSession session) throws Exception {
+        //1,根据code换取access_token
         Map<String, String> map = new HashMap<>();
-        map.put("client_id","2077705774");
-        map.put("client_secret","40af02bd1c7e435ba6a6e9cd3bf799fd");
-        map.put("grant_type","authorization_code");
-        map.put("redirect_uri","http://auth.gulimall.com/oauth2.0/weibo/success");
-        map.put("code",code);
-
-        //1、根据code换取access_token
+        map.put("client_id", "1049326439");
+        map.put("client_secret", "3e01442e74458ae6b2b634cb3d2d38e5");
+        map.put("grant_type", "authorization_code");
+        map.put("redirect_uri", "http://www.auth.gulimall.com/oauth2.0/weibo/success");
+        map.put("code", code);
         HttpResponse response = HttpUtils.doPost("https://api.weibo.com", "/oauth2/access_token", "post", new HashMap<>(), map, new HashMap<>());
 
-        //2、处理
+        //2,处理
         if (response.getStatusLine().getStatusCode() == 200) {
             //获取到了access_token
             String json = EntityUtils.toString(response.getEntity());
-            //String json = JSON.toJSONString(response.getEntity());
             SocialUser socialUser = JSON.parseObject(json, SocialUser.class);
-
-            //知道了哪个社交用户
-            //1）、当前用户如果是第一次进网站，自动注册进来（为当前社交用户生成一个会员信息，以后这个社交账号就对应指定的会员）
-            //登录或者注册这个社交用户
-            System.out.println(socialUser.getAccess_token());
             //调用远程服务
             R oauthLogin = memberFeignService.oauthLogin(socialUser);
             if (oauthLogin.getCode() == 0) {
@@ -69,16 +65,13 @@ public class OAuth2Controller {
                 session.setAttribute(LOGIN_USER,data);
                 
                 //2、登录成功跳回首页
-                return "redirect:http://gulimall.com";
+                return "redirect:http://www.gulimall.com";
             } else {
-                
-                return "redirect:http://auth.gulimall.com/login.html";
+                return "redirect:http://www.auth.gulimall.com/login.html";
             }
-
         } else {
-            return "redirect:http://auth.gulimall.com/login.html";
+            return "redirect:http://www.auth.gulimall.com/login.html";
         }
-
     }
 
 }
