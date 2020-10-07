@@ -24,7 +24,7 @@ public class MemberController {
     private MemberService memberService;
 
     /**
-     * 提供给别的服务进行调用
+     * 提供给别的服务进行注册
      * @param vo
      * @return
      */
@@ -40,26 +40,34 @@ public class MemberController {
         return R.ok();
     }
 
-
+    /**
+     * 提供给别的服务进行登录
+     * @param vo
+     * @return
+     */
     @PostMapping(value = "/login")
     public R login(@RequestBody MemberUserLoginVo vo) {
         MemberEntity memberEntity = memberService.login(vo);
         if (memberEntity != null) {
             return R.ok().setData(memberEntity);
         } else {
-            return R.error(BizCodeEnum.LOGINACCT_PASSWORD_EXCEPTION.getCode(),BizCodeEnum.LOGINACCT_PASSWORD_EXCEPTION.getMessage());
+            return R.error(BizCodeEnum.LOGIN_ACCT_PASSWORD_EXCEPTION.getCode(),BizCodeEnum.LOGIN_ACCT_PASSWORD_EXCEPTION.getMessage());
         }
     }
 
-
+    /**
+     * 提供给别的服务进行（社交）登录
+     * @param socialUser
+     * @return
+     * @throws Exception
+     */
     @PostMapping(value = "/oauth2/login")
     public R oauthLogin(@RequestBody SocialUser socialUser) throws Exception {
         MemberEntity memberEntity = memberService.login(socialUser);
-
         if (memberEntity != null) {
             return R.ok().setData(memberEntity);
         } else {
-            return R.error(BizCodeEnum.LOGINACCT_PASSWORD_EXCEPTION.getCode(),BizCodeEnum.LOGINACCT_PASSWORD_EXCEPTION.getMessage());
+            return R.error(BizCodeEnum.LOGIN_ACCT_PASSWORD_EXCEPTION.getCode(),BizCodeEnum.LOGIN_ACCT_PASSWORD_EXCEPTION.getMessage());
         }
     }
 
@@ -69,7 +77,7 @@ public class MemberController {
         if (memberEntity != null) {
             return R.ok().setData(memberEntity);
         } else {
-            return R.error(BizCodeEnum.LOGINACCT_PASSWORD_EXCEPTION.getCode(),BizCodeEnum.LOGINACCT_PASSWORD_EXCEPTION.getMessage());
+            return R.error(BizCodeEnum.LOGIN_ACCT_PASSWORD_EXCEPTION.getCode(),BizCodeEnum.LOGIN_ACCT_PASSWORD_EXCEPTION.getMessage());
         }
     }
 
