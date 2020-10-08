@@ -15,11 +15,13 @@
         <!--品牌官方网站-->
         <div class="min">
             <ul class="header_ul_left">
-                <li class="glyphicon glyphicon-home"><a href="http://gulimall.com/" class="aa">京东首页</a></li>
-                <li class="glyphicon glyphicon-map-marker"><a href="/item/javascript:;">北京</a>
+                <li class="glyphicon glyphicon-home">
+                    <a href="http://www.gulimall.com/" class="header_head_p_a1" style="width:73px;">谷粒商城首页</a>
+                </li>
+                <li class="glyphicon glyphicon-map-marker">
+                    <a href="/item/javascript:;">北京</a>
                     <ol id="beijing">
-                        <li style="background: red;"><a href="/item/javascript:;" style="color: white;">北京</a>
-                        </li>
+                        <li style="background: red;"><a href="/item/javascript:;" style="color: white;">北京</a></li>
                         <li><a href="/item/javascript:;">上海</a></li>
                         <li><a href="/item/javascript:;">天津</a></li>
                         <li><a href="/item/javascript:;">重庆</a></li>
@@ -59,9 +61,8 @@
             </ul>
             `
             <ul class="header_ul_right">
-                <li style="border: 0;">
-                    <a th:if="${session.loginUser == null}" href="http://auth.gulimall.com/login.html"
-                       class="aa">你好，请登录</a>
+                <li style="border: 0;width: unset;">
+                    <a th:if="${session.loginUser == null}" href="http://www.auth.gulimall.com/login.html">你好，请登录</a>
                     <a th:if="${session.loginUser != null}">欢迎, [[${session.loginUser.nickname}]]</a>
                 </li>
                 <li>
