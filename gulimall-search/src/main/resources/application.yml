@@ -26,8 +26,8 @@ spring:
 #  thymeleaf:
 #    cache: false
 #
-#  session:
-#    store-type: redis
+  session:
+    store-type: redis
 #
 #logging:
 #  level:
