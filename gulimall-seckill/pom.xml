@@ -70,12 +70,6 @@
             <version>3.12.0</version>
         </dependency>
 
-        <!-- 整合springsession -->
-        <dependency>
-            <groupId>org.springframework.session</groupId>
-            <artifactId>spring-session-data-redis</artifactId>
-        </dependency>
-
         <!-- 引入rabbitmq -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
