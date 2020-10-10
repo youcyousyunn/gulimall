@@ -19,6 +19,7 @@ public class CartController {
     @Resource
     private CartService cartService;
 
+
     /**
      * 获取当前用户的购物车商品项
      * @return
@@ -32,12 +33,11 @@ public class CartController {
 
     /**
      * 去购物车页面的请求
-     * 浏览器有一个cookie:user-key 标识用户的身份，一个月过期
-     * 如果第一次使用jd的购物车功能，都会给一个临时的用户身份:
-     * 浏览器以后保存，每次访问都会带上这个cookie；
+     * 浏览器有一个cookie:user-key 标识用户的身份,一个月过期
+     * 如果第一次使用购物车功能：都会给一个临时的用户身份,浏览器以后保存每次访问都会带上这个cookie
      * 登录：session有
      * 没登录：按照cookie里面带来user-key来做
-     * 第一次，如果没有临时用户，自动创建一个临时用户
+     * 第一次：如果没有临时用户，自动创建一个临时用户
      *
      * @return
      */
@@ -51,10 +51,9 @@ public class CartController {
         return "cartList";
     }
 
-
     /**
      * 添加商品到购物车
-     * attributes.addFlashAttribute():将数据放在session中，可以在页面中取出，但是只能取一次
+     * attributes.addFlashAttribute():将数据放在session中,可以在页面中取出,但是只能取一次
      * attributes.addAttribute():将数据放在url后面
      * @return
      */
@@ -64,9 +63,8 @@ public class CartController {
                               RedirectAttributes attributes) throws ExecutionException, InterruptedException {
         cartService.addToCart(skuId,num);
         attributes.addAttribute("skuId",skuId);
-        return "redirect:http://cart.gulimall.com/addToCartSuccessPage.html";
+        return "redirect:http://www.cart.gulimall.com/addToCartSuccessPage.html";
     }
-
 
     /**
      * 跳转到添加购物车成功页面
@@ -82,9 +80,8 @@ public class CartController {
         return "success";
     }
 
-
     /**
-     * 商品是否选中
+     * 购物车中商品是否选中
      * @param skuId
      * @param checked
      * @return
@@ -92,12 +89,11 @@ public class CartController {
     @GetMapping(value = "/checkItem")
     public String checkItem(@RequestParam(value = "skuId") Long skuId, @RequestParam(value = "checked") Integer checked) {
         cartService.checkItem(skuId,checked);
-        return "redirect:http://cart.gulimall.com/cart.html";
+        return "redirect:http://www.cart.gulimall.com/cart.html";
     }
 
-
     /**
-     * 改变商品数量
+     * 改变购物车中商品数量
      * @param skuId
      * @param num
      * @return
@@ -105,17 +101,17 @@ public class CartController {
     @GetMapping(value = "/countItem")
     public String countItem(@RequestParam(value = "skuId") Long skuId, @RequestParam(value = "num") Integer num) {
         cartService.changeItemCount(skuId,num);
-        return "redirect:http://cart.gulimall.com/cart.html";
+        return "redirect:http://www.cart.gulimall.com/cart.html";
     }
 
     /**
-     * 删除商品信息
+     * 删除购物车中商品
      * @param skuId
      * @return
      */
     @GetMapping(value = "/deleteItem")
     public String deleteItem(@RequestParam("skuId") Integer skuId) {
         cartService.deleteIdCartInfo(skuId);
-        return "redirect:http://cart.gulimall.com/cart.html";
+        return "redirect:http://www.cart.gulimall.com/cart.html";
     }
 }

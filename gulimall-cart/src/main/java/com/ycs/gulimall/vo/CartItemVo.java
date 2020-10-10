@@ -71,13 +71,10 @@ public class CartItemVo {
      * @return
      */
     public BigDecimal getTotalPrice() {
-
         return this.price.multiply(new BigDecimal("" + this.count));
     }
 
     public void setTotalPrice(BigDecimal totalPrice) {
         this.totalPrice = totalPrice;
     }
-
-
 }

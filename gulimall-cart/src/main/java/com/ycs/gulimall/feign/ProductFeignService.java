@@ -21,18 +21,18 @@ public interface ProductFeignService {
     R getInfo(@PathVariable("skuId") Long skuId);
 
     /**
-     * 根据skuId查询pms_sku_sale_attr_value表中的信息
-     * @param skuId
-     * @return
-     */
-    @GetMapping(value = "/product/skusaleattrvalue/stringList/{skuId}")
-    List<String> getSkuSaleAttrValues(@PathVariable("skuId") Long skuId);
-
-    /**
      * 根据skuId查询当前商品的最新价格
      * @param skuId
      * @return
      */
     @GetMapping(value = "/product/skuinfo/{skuId}/price")
     BigDecimal getPrice(@PathVariable("skuId") Long skuId);
+
+    /**
+     * 根据skuId查询pms_sku_sale_attr_value表中的信息
+     * @param skuId
+     * @return
+     */
+    @GetMapping(value = "/product/skusaleattrvalue/stringList/{skuId}")
+    List<String> getSkuSaleAttrValues(@PathVariable("skuId") Long skuId);
 }
