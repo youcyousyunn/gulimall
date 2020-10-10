@@ -11,15 +11,14 @@ import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Map;
 
-/**
- * sku信息
- */
+
 @RestController
 @RequestMapping("product/skuinfo")
 public class SkuInfoController {
     @Resource
     private SkuInfoService skuInfoService;
 
+    
     /**
      * 根据skuId查询当前商品的价格
      * @param skuId
