@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.HashMap;
+import java.util.Map;
 
 @Configuration
 public class GulimallRabbitMQConfig {
@@ -15,7 +16,6 @@ public class GulimallRabbitMQConfig {
 
     /**
      * 死信队列
-     *
      * @return
      */@Bean
     public Queue orderDelayQueue() {
@@ -26,18 +26,16 @@ public class GulimallRabbitMQConfig {
             boolean autoDelete, 是否自动删除
             Map<String, Object> arguments) 属性
          */
-        HashMap<String, Object> arguments = new HashMap<>();
+        Map<String, Object> arguments = new HashMap<>();
         arguments.put("x-dead-letter-exchange", "order-event-exchange");
         arguments.put("x-dead-letter-routing-key", "order.release.order");
         arguments.put("x-message-ttl", 60000); // 消息过期时间 1分钟
         Queue queue = new Queue("order.delay.queue", true, false, false, arguments);
-
         return queue;
     }
 
     /**
      * 普通队列
-     *
      * @return
      */
     @Bean
@@ -48,7 +46,6 @@ public class GulimallRabbitMQConfig {
 
     /**
      * TopicExchange
-     *
      * @return
      */
     @Bean
@@ -60,7 +57,6 @@ public class GulimallRabbitMQConfig {
          *   Map<String, Object> arguments
          * */
         return new TopicExchange("order-event-exchange", true, false);
-
     }
 
 
@@ -123,7 +119,6 @@ public class GulimallRabbitMQConfig {
                 "order-event-exchange",
                 "order.seckill.order",
                 null);
-
         return binding;
     }
 }
