@@ -88,7 +88,7 @@ spring:
         - id: gulimall_order_route
           uri: lb://gulimall-order
           predicates:
-            - Host=order.gulimall.com
+            - Host=www.order.gulimall.com
 
         - id: gulimall_member_route
           uri: lb://gulimall-member
