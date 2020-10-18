@@ -31,13 +31,13 @@ public class OrderWebController {
      */
     @GetMapping(value = "/toTrade")
     public String toTrade(Model model, HttpServletRequest request) throws ExecutionException, InterruptedException {
+        //订单确认页返回需要用的数据
         OrderConfirmVo confirmVo = orderService.confirmOrder();
         model.addAttribute("confirmOrderData",confirmVo);
         //展示订单确认的数据
 
         return "confirm";
     }
-
 
     /**
      * 下单功能
@@ -62,14 +62,14 @@ public class OrderWebController {
                     case 3: msg += "库存锁定失败，商品库存不足"; break;
                 }
                 attributes.addFlashAttribute("msg",msg);
-                return "redirect:http://order.gulimall.com/toTrade";
+                return "redirect:http://www.order.gulimall.com/toTrade";
             }
         } catch (Exception e) {
             if (e instanceof NoStockException) {
                 String message = ((NoStockException)e).getMessage();
                 attributes.addFlashAttribute("msg",message);
             }
-            return "redirect:http://order.gulimall.com/toTrade";
+            return "redirect:http://www.order.gulimall.com/toTrade";
         }
     }
 

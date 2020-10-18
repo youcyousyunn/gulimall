@@ -15,10 +15,10 @@ spring:
       discovery:
         server-addr: 127.0.0.1:8848
 
-    sentinel:
-      transport:
+#    sentinel:
+#      transport:
         #配置sentinel dashboard地址
-        dashboard: 127.0.0.1:8080
+#        dashboard: 127.0.0.1:8080
 
   redis:
     host: 127.0.0.1
@@ -28,6 +28,13 @@ spring:
 feign:
   sentinel:
     enabled: true
+
+  #调用其他服务超时设置
+  client:
+    config:
+     default:
+      connectTimeout: 60000
+      readTimeout: 60000
 
   session:
     store-type: redis

@@ -92,10 +92,6 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         return new PageUtils(page);
     }
 
-    /**
-     * 订单确认页返回需要用的数据
-     * @return
-     */
     @Override
     public OrderConfirmVo confirmOrder() throws ExecutionException, InterruptedException {
         //构建OrderConfirmVo
@@ -104,7 +100,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         //获取当前用户登录的信息
         MemberResponseVo memberResponseVo = LoginUserInterceptor.loginUser.get();
 
-        //TODO :获取当前线程请求头信息(解决Feign异步调用丢失请求头问题)
+        //获取当前线程请求头信息(解决Feign异步调用丢失请求头问题)
         RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
 
         //开启第一个异步任务
@@ -152,7 +148,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
 
         //4、价格数据自动计算
 
-        //TODO 5、防重令牌(防止表单重复提交)
+        //5、防重令牌(防止表单重复提交)
         //为用户设置一个token，三十分钟过期时间（存在redis）
         String token = UUID.randomUUID().toString().replace("-", "");
         redisTemplate.opsForValue().set(USER_ORDER_TOKEN_PREFIX+memberResponseVo.getId(),token,30, TimeUnit.MINUTES);

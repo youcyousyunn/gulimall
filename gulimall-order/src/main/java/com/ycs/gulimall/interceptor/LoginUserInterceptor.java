@@ -14,6 +14,7 @@ import static com.ycs.gulimall.constant.AuthConstant.LOGIN_USER;
 
 @Component
 public class LoginUserInterceptor implements HandlerInterceptor {
+    //使用此线程保存用户信息,接下来该线程访问的所有方法都可以从中获取用户信息
     public static ThreadLocal<MemberResponseVo> loginUser = new ThreadLocal<>();
 
 
@@ -28,20 +29,19 @@ public class LoginUserInterceptor implements HandlerInterceptor {
         }
 
         //获取登录的用户信息
-        MemberResponseVo attribute = (MemberResponseVo) request.getSession().getAttribute(LOGIN_USER);
+        MemberResponseVo memberResponseVo = (MemberResponseVo) request.getSession().getAttribute(LOGIN_USER);
 
-        if (attribute != null) {
+        if (memberResponseVo != null) {
             //把登录后用户的信息放在ThreadLocal里面进行保存
-            loginUser.set(attribute);
-
+            loginUser.set(memberResponseVo);
             return true;
         } else {
             //未登录，返回登录页面
             response.setContentType("text/html;charset=UTF-8");
             PrintWriter out = response.getWriter();
-            out.println("<script>alert('请先进行登录，再进行后续操作！');location.href='http://auth.gulimall.com/login.html'</script>");
+            out.println("<script>location.href='http://www.auth.gulimall.com/login.html'</script>");
             // session.setAttribute("msg", "请先进行登录");
-            // response.sendRedirect("http://auth.gulimall.com/login.html");
+            // response.sendRedirect("http://www.auth.gulimall.com/login.html");
             return false;
         }
     }

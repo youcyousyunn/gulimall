@@ -1,5 +1,6 @@
 package com.ycs.gulimall.config;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
@@ -8,6 +9,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 
+@Slf4j
 @Configuration
 public class MyRabbitConfig {
     private RabbitTemplate rabbitTemplate;
@@ -51,7 +53,7 @@ public class MyRabbitConfig {
          */
         //设置确认回调
         rabbitTemplate.setConfirmCallback((correlationData,ack,cause) -> {
-            System.out.println("confirm...correlationData["+correlationData+"]==>ack:["+ack+"]==>cause:["+cause+"]");
+            log.info("confirm...correlationData["+correlationData+"]==>ack:["+ack+"]==>cause:["+cause+"]");
         });
 
 
@@ -64,7 +66,7 @@ public class MyRabbitConfig {
          * routingKey：当时这个消息用哪个路邮键
          */
         rabbitTemplate.setReturnCallback((message,replyCode,replyText,exchange,routingKey) -> {
-            System.out.println("Fail Message["+message+"]==>replyCode["+replyCode+"]" +
+            log.info("Fail Message["+message+"]==>replyCode["+replyCode+"]" +
                     "==>replyText["+replyText+"]==>exchange["+exchange+"]==>routingKey["+routingKey+"]");
         });
     }

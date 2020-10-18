@@ -10,13 +10,8 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 public interface OrderService extends IService<OrderEntity> {
-    PageUtils queryPage(Map<String, Object> params);
-
-    /**
-     * 订单确认页返回需要用的数据
-     * @return
-     */
     OrderConfirmVo confirmOrder() throws ExecutionException, InterruptedException;
+    PageUtils queryPage(Map<String, Object> params);
 
     /**
      * 创建订单
