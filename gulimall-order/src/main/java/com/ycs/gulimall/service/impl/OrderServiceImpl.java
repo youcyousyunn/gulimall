@@ -13,6 +13,7 @@ import com.ycs.gulimall.entity.OrderEntity;
 import com.ycs.gulimall.entity.OrderItemEntity;
 import com.ycs.gulimall.entity.PaymentInfoEntity;
 import com.ycs.gulimall.enume.OrderStatusEnum;
+import com.ycs.gulimall.exception.BizCodeEnum;
 import com.ycs.gulimall.exception.NoStockException;
 import com.ycs.gulimall.feign.CartFeignService;
 import com.ycs.gulimall.feign.MemberFeignService;
@@ -58,7 +59,7 @@ import static com.ycs.gulimall.constant.OrderConstant.USER_ORDER_TOKEN_PREFIX;
 @Slf4j
 @Service("orderService")
 public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> implements OrderService {
-    private ThreadLocal<OrderSubmitVo> confirmVoThreadLocal = new ThreadLocal<>();
+    private ThreadLocal<OrderSubmitVo> confirmVoThreadLocal = new ThreadLocal<>(); //提交订单线程
 
     @Autowired
     private MemberFeignService memberFeignService;
@@ -94,33 +95,31 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
 
     @Override
     public OrderConfirmVo confirmOrder() throws ExecutionException, InterruptedException {
-        //构建OrderConfirmVo
+        //1,构建订单确认对象
         OrderConfirmVo confirmVo = new OrderConfirmVo();
 
         //获取当前用户登录的信息
         MemberResponseVo memberResponseVo = LoginUserInterceptor.loginUser.get();
 
-        //获取当前线程请求头信息(解决Feign异步调用丢失请求头问题)
+        //TODO 获取当前线程请求头信息(解决Feign异步调用丢失请求头问题)
         RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
 
-        //开启第一个异步任务
+        //2,获取用户收货地址列表
         CompletableFuture<Void> addressFuture = CompletableFuture.runAsync(() -> {
 
             //每一个线程都来共享之前的请求数据
             RequestContextHolder.setRequestAttributes(requestAttributes);
 
-            //1、远程查询所有的收获地址列表
             List<MemberAddressVo> address = memberFeignService.getAddress(memberResponseVo.getId());
             confirmVo.setMemberAddressVos(address);
         }, threadPoolExecutor);
 
-        //开启第二个异步任务
+        //3,远程查询购物车所有选中的购物项
         CompletableFuture<Void> cartInfoFuture = CompletableFuture.runAsync(() -> {
 
             //每一个线程都来共享之前的请求数据
             RequestContextHolder.setRequestAttributes(requestAttributes);
 
-            //2、远程查询购物车所有选中的购物项
             List<OrderItemVo> currentCartItems = cartFeignService.getCurrentCartItems();
             confirmVo.setItems(currentCartItems);
             //feign在远程调用之前要构造请求，调用很多的拦截器
@@ -131,7 +130,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
                     .map((itemVo -> itemVo.getSkuId()))
                     .collect(Collectors.toList());
 
-            //远程查询商品库存信息
+            //4,远程查询商品库存信息
             R skuHasStock = wmsFeignService.getSkuHasStock(skuIds);
             List<SkuStockVo> skuStockVos = skuHasStock.getData("data", new TypeReference<List<SkuStockVo>>() {});
 
@@ -142,43 +141,36 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
             }
         },threadPoolExecutor);
 
-        //3、查询用户积分
+        //5,查询用户积分
         Integer integration = memberResponseVo.getIntegration();
         confirmVo.setIntegration(integration);
 
-        //4、价格数据自动计算
+        //6,价格数据自动计算
 
-        //5、防重令牌(防止表单重复提交)
-        //为用户设置一个token，三十分钟过期时间（存在redis）
+        //7,防重令牌[防止表单重复提交.为用户设置一个token,三十分钟过期时间]
         String token = UUID.randomUUID().toString().replace("-", "");
-        redisTemplate.opsForValue().set(USER_ORDER_TOKEN_PREFIX+memberResponseVo.getId(),token,30, TimeUnit.MINUTES);
+        redisTemplate.opsForValue().set(USER_ORDER_TOKEN_PREFIX + memberResponseVo.getId(),token,30, TimeUnit.MINUTES);
         confirmVo.setOrderToken(token);
         CompletableFuture.allOf(addressFuture,cartInfoFuture).get();
         return confirmVo;
     }
 
-    /**
-     * 提交订单
-     * @param vo
-     * @return
-     */
     // @Transactional(isolation = Isolation.READ_COMMITTED) 设置事务的隔离级别
     // @Transactional(propagation = Propagation.REQUIRED)   设置事务的传播级别
     @Transactional(rollbackFor = Exception.class)
     // @GlobalTransactional(rollbackFor = Exception.class)
     @Override
     public SubmitOrderResponseVo submitOrder(OrderSubmitVo vo) {
+        //创建订单流程：验令牌,创建订单,验价格,锁定库存,发送成功消息...
+        SubmitOrderResponseVo responseVo = new SubmitOrderResponseVo();
 
         confirmVoThreadLocal.set(vo);
-
-        SubmitOrderResponseVo responseVo = new SubmitOrderResponseVo();
-        //去创建、下订单、验令牌、验价格、锁定库存...
 
         //获取当前用户登录的信息
         MemberResponseVo memberResponseVo = LoginUserInterceptor.loginUser.get();
         responseVo.setCode(0);
 
-        //1、验证令牌是否合法【令牌的对比和删除必须保证原子性】
+        //1,验证令牌是否合法【令牌的对比和删除必须保证原子性，避免多个线程进入生成订单流程】
         String script = "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end";
         String orderToken = vo.getOrderToken();
 
@@ -189,23 +181,21 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
 
         if (result == 0L) {
             //令牌验证失败
-            responseVo.setCode(1);
+            responseVo.setCode(BizCodeEnum.ORDER_TOKEN_EXPIRED.getCode());
             return responseVo;
         } else {
             //令牌验证成功
-            //1、创建订单、订单项等信息
+            //2,创建订单,订单项等信息
             OrderCreateTo order = createOrder();
 
-            //2、验证价格
+            //3,验证价格
             BigDecimal payAmount = order.getOrder().getPayAmount();
             BigDecimal payPrice = vo.getPayPrice();
-
-            if (Math.abs(payAmount.subtract(payPrice).doubleValue()) < 0.01) {
-                //金额对比
-                //TODO 3、保存订单
+            if(Math.abs(payAmount.subtract(payPrice).doubleValue()) < 0.01) { //金额对比
+                //保存订单
                 saveOrder(order);
 
-                //4、库存锁定,只要有异常，回滚订单数据
+                //4,库存锁定,只要有异常回滚订单数据
                 //订单号、所有订单项信息(skuId,skuNum,skuName)
                 WareSkuLockVo lockVo = new WareSkuLockVo();
                 lockVo.setOrderSn(order.getOrder().getOrderSn());
@@ -220,7 +210,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
                 }).collect(Collectors.toList());
                 lockVo.setLocks(orderItemVos);
 
-                //TODO 调用远程锁定库存的方法
+                //调用远程锁定库存的方法
                 //出现的问题：扣减库存成功了，但是由于网络原因超时，出现异常，导致订单事务回滚，库存事务不回滚(解决方案：seata)
                 //为了保证高并发，不推荐使用seata，因为是加锁，并行化，提升不了效率,可以发消息给库存服务
                 R r = wmsFeignService.orderLockStock(lockVo);
@@ -229,7 +219,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
                     responseVo.setOrder(order.getOrder());
                     // int i = 10/0;
 
-                    //TODO 订单创建成功，发送消息给MQ
+                    //订单创建成功，发送消息给MQ
                     rabbitTemplate.convertAndSend("order-event-exchange","order.create.order",order.getOrder());
 
                     //删除购物车里的数据
@@ -239,12 +229,11 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
                     //锁定失败
                     String msg = (String) r.get("msg");
                     throw new NoStockException(msg);
-                    // responseVo.setCode(3);
+                     // responseVo.setCode(BizCodeEnum.NO_STOCK_EXCEPTION.getCode());
                     // return responseVo;
                 }
-
             } else {
-                responseVo.setCode(2);
+                responseVo.setCode(BizCodeEnum.ORDER_PRODUCT_PRICE_CHANGED.getCode());
                 return responseVo;
             }
         }
@@ -371,9 +360,11 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         orderItemService.saveBatch(orderItems);
     }
 
-
+    /**
+     * 创建订单,订单项等信息
+     * @return
+     */
     private OrderCreateTo createOrder() {
-
         OrderCreateTo createTo = new OrderCreateTo();
 
         //1、生成订单号
@@ -449,7 +440,6 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
      * @return
      */
     private OrderEntity builderOrder(String orderSn) {
-
         //获取当前用户登录信息
         MemberResponseVo memberResponseVo = LoginUserInterceptor.loginUser.get();
 
@@ -491,7 +481,6 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
      * @return
      */
     public List<OrderItemEntity> builderOrderItems(String orderSn) {
-
         List<OrderItemEntity> orderItemEntityList = new ArrayList<>();
 
         //最后确定每个购物项的价格
@@ -515,7 +504,6 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
      * @return
      */
     private OrderItemEntity builderOrderItem(OrderItemVo items) {
-
         OrderItemEntity orderItemEntity = new OrderItemEntity();
 
         //1、商品的spu信息

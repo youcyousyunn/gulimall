@@ -1,5 +1,6 @@
 package com.ycs.gulimall.web;
 
+import com.ycs.gulimall.exception.BizCodeEnum;
 import com.ycs.gulimall.exception.NoStockException;
 import com.ycs.gulimall.service.OrderService;
 import com.ycs.gulimall.vo.OrderConfirmVo;
@@ -22,7 +23,7 @@ public class OrderWebController {
     private OrderService orderService;
 
     /**
-     * 去结算确认页
+     * 去订单结算确认页
      * @param model
      * @param request
      * @return
@@ -35,12 +36,11 @@ public class OrderWebController {
         OrderConfirmVo confirmVo = orderService.confirmOrder();
         model.addAttribute("confirmOrderData",confirmVo);
         //展示订单确认的数据
-
         return "confirm";
     }
 
     /**
-     * 下单功能
+     * 提交订单
      * @param vo
      * @return
      */
@@ -55,19 +55,22 @@ public class OrderWebController {
                 model.addAttribute("submitOrderResp",responseVo);
                 return "pay";
             } else {
-                String msg = "下单失败";
-                switch (responseVo.getCode()) {
-                    case 1: msg += "令牌订单信息过期，请刷新再次提交"; break;
-                    case 2: msg += "订单商品价格发生变化，请确认后再次提交"; break;
-                    case 3: msg += "库存锁定失败，商品库存不足"; break;
+                Integer code = responseVo.getCode();
+                String msg = "下单失败，";
+                if(code.equals(BizCodeEnum.ORDER_TOKEN_EXPIRED.getCode())) {
+                    msg += "订单令牌信息过期，请刷新页面再次提交";
+                } else if(code.equals(BizCodeEnum.ORDER_PRODUCT_PRICE_CHANGED.getCode())) {
+                    msg += "订单商品价格发生变化，请确认后再次提交";
+                } else if(code.equals(BizCodeEnum.NO_STOCK_EXCEPTION.getCode())) {
+                    msg += "库存锁定失败，商品库存不足";
                 }
-                attributes.addFlashAttribute("msg",msg);
+                attributes.addFlashAttribute("msg", msg);
                 return "redirect:http://www.order.gulimall.com/toTrade";
             }
         } catch (Exception e) {
             if (e instanceof NoStockException) {
                 String message = ((NoStockException)e).getMessage();
-                attributes.addFlashAttribute("msg",message);
+                attributes.addFlashAttribute("msg", message);
             }
             return "redirect:http://www.order.gulimall.com/toTrade";
         }
