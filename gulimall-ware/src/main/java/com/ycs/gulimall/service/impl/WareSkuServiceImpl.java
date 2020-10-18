@@ -150,7 +150,7 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
             stock.setNum(item.getCount());
             //2,找到每个商品在哪个仓库有库存
             List<Long> wareIdList = wareSkuDao.listWareIdHasSkuStock(skuId);
-            stock.setWareId(wareIdList);
+            stock.setWareIds(wareIdList);
             return stock;
         }).collect(Collectors.toList());
 
@@ -158,7 +158,7 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
         for (SkuWareHasStock hasStock : collect) {
             boolean skuStocked = false;
             Long skuId = hasStock.getSkuId();
-            List<Long> wareIds = hasStock.getWareId();
+            List<Long> wareIds = hasStock.getWareIds();
 
             //再次校验商品库存是否有对应的仓库
             if (org.springframework.util.StringUtils.isEmpty(wareIds)) {
@@ -195,7 +195,7 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
                 }
             }
 
-            if (skuStocked == false) {
+            if (!skuStocked) {
                 //当前商品所有仓库都没有锁住
                 throw new NoStockException(skuId);
             }
@@ -305,7 +305,7 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
     class SkuWareHasStock {
         private Long skuId;
         private Integer num;
-        private List<Long> wareId;
+        private List<Long> wareIds;
     }
 
 }
