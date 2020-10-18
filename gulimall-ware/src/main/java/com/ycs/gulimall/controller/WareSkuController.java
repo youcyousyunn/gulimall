@@ -1,12 +1,12 @@
 package com.ycs.gulimall.controller;
 
-import com.xunqi.common.exception.NoStockException;
-import com.xunqi.common.utils.PageUtils;
-import com.xunqi.common.utils.R;
-import com.xunqi.gulimall.ware.entity.WareSkuEntity;
-import com.xunqi.gulimall.ware.service.WareSkuService;
-import com.xunqi.gulimall.ware.vo.SkuHasStockVo;
-import com.xunqi.gulimall.ware.vo.WareSkuLockVo;
+import com.ycs.gulimall.entity.WareSkuEntity;
+import com.ycs.gulimall.exception.NoStockException;
+import com.ycs.gulimall.service.WareSkuService;
+import com.ycs.gulimall.utils.PageUtils;
+import com.ycs.gulimall.utils.R;
+import com.ycs.gulimall.vo.SkuHasStockVo;
+import com.ycs.gulimall.vo.WareSkuLockVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,16 +14,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import static com.xunqi.common.exception.BizCodeEnum.NO_STOCK_EXCEPTION;
+import static com.ycs.gulimall.exception.BizCodeEnum.NO_STOCK_EXCEPTION;
 
 
-/**
- * 商品库存
- *
- * @author 夏沫止水
- * @email HeJieLin@gulimall.com
- * @date 2020-05-22 19:55:33
- */
 @RestController
 @RequestMapping("ware/waresku")
 public class WareSkuController {
@@ -43,12 +36,11 @@ public class WareSkuController {
      */
     @PostMapping(value = "/lock/order")
     public R orderLockStock(@RequestBody WareSkuLockVo vo) {
-
         try {
             boolean lockStock = wareSkuService.orderLockStock(vo);
             return R.ok().setData(lockStock);
         } catch (NoStockException e) {
-            return R.error(NO_STOCK_EXCEPTION.getCode(),NO_STOCK_EXCEPTION.getMessage());
+            return R.error(NO_STOCK_EXCEPTION.getCode(), NO_STOCK_EXCEPTION.getMessage());
         }
     }
 
@@ -58,12 +50,8 @@ public class WareSkuController {
      */
     @PostMapping(value = "/hasStock")
     public R getSkuHasStock(@RequestBody List<Long> skuIds) {
-
-        //skuId stock
-        List<SkuHasStockVo> vos = wareSkuService.getSkuHasStock(skuIds);
-
-        return R.ok().setData(vos);
-
+        List<SkuHasStockVo> skuHasStockVos = wareSkuService.getSkuHasStock(skuIds);
+        return R.ok().setData(skuHasStockVos);
     }
 
     /**
@@ -73,7 +61,6 @@ public class WareSkuController {
     //@RequiresPermissions("ware:waresku:list")
     public R list(@RequestParam Map<String, Object> params){
         PageUtils page = wareSkuService.queryPage(params);
-
         return R.ok().put("page", page);
     }
 
@@ -85,7 +72,6 @@ public class WareSkuController {
     //@RequiresPermissions("ware:waresku:info")
     public R info(@PathVariable("id") Long id){
 		WareSkuEntity wareSku = wareSkuService.getById(id);
-
         return R.ok().put("wareSku", wareSku);
     }
 
@@ -96,7 +82,6 @@ public class WareSkuController {
     //@RequiresPermissions("ware:waresku:save")
     public R save(@RequestBody WareSkuEntity wareSku){
 		wareSkuService.save(wareSku);
-
         return R.ok();
     }
 
@@ -107,7 +92,6 @@ public class WareSkuController {
     //@RequiresPermissions("ware:waresku:update")
     public R update(@RequestBody WareSkuEntity wareSku){
 		wareSkuService.updateById(wareSku);
-
         return R.ok();
     }
 
@@ -118,8 +102,6 @@ public class WareSkuController {
     //@RequiresPermissions("ware:waresku:delete")
     public R delete(@RequestBody Long[] ids){
 		wareSkuService.removeByIds(Arrays.asList(ids));
-
         return R.ok();
     }
-
 }

@@ -117,12 +117,11 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
 
     @Override
     public List<SkuHasStockVo> getSkuHasStock(List<Long> skuIds) {
-
-        List<SkuHasStockVo> skuHasStockVos = skuIds.stream().map(item -> {
-            Long count = this.baseMapper.getSkuStock(item);
+        List<SkuHasStockVo> skuHasStockVos = skuIds.stream().map(id -> {
+            Long count = this.baseMapper.getSkuStock(id);
             SkuHasStockVo skuHasStockVo = new SkuHasStockVo();
-            skuHasStockVo.setSkuId(item);
-            skuHasStockVo.setHasStock(count == null?false:count > 0);
+            skuHasStockVo.setSkuId(id);
+            skuHasStockVo.setHasStock(count == null ? false : count > 0);
             return skuHasStockVo;
         }).collect(Collectors.toList());
         return skuHasStockVos;

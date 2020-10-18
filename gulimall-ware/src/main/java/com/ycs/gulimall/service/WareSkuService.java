@@ -21,12 +21,6 @@ public interface WareSkuService extends IService<WareSkuEntity> {
      * @param skuNum
      */
     void addStock(Long skuId, Long wareId, Integer skuNum);
-
-    /**
-     * 判断是否有库存
-     * @param skuIds
-     * @return
-     */
     List<SkuHasStockVo> getSkuHasStock(List<Long> skuIds);
 
     /**
