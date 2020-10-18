@@ -22,12 +22,6 @@ public interface WareSkuService extends IService<WareSkuEntity> {
      */
     void addStock(Long skuId, Long wareId, Integer skuNum);
     List<SkuHasStockVo> getSkuHasStock(List<Long> skuIds);
-
-    /**
-     * 锁定库存
-     * @param vo
-     * @return
-     */
     boolean orderLockStock(WareSkuLockVo vo);
 
 

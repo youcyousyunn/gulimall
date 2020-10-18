@@ -1,6 +1,7 @@
 package com.ycs.gulimall.controller;
 
 import com.ycs.gulimall.entity.WareSkuEntity;
+import com.ycs.gulimall.exception.BizCodeEnum;
 import com.ycs.gulimall.exception.NoStockException;
 import com.ycs.gulimall.service.WareSkuService;
 import com.ycs.gulimall.utils.PageUtils;
@@ -14,8 +15,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import static com.ycs.gulimall.exception.BizCodeEnum.NO_STOCK_EXCEPTION;
-
 
 @RestController
 @RequestMapping("ware/waresku")
@@ -23,15 +22,13 @@ public class WareSkuController {
     @Autowired
     private WareSkuService wareSkuService;
 
+
     /**
      * 锁定库存
      * @param vo
-     *
      * 库存解锁的场景
      *      1）、下订单成功，订单过期没有支付被系统自动取消或者被用户手动取消，都要解锁库存
      *      2）、下订单成功，库存锁定成功，接下来的业务调用失败，导致订单回滚。之前锁定的库存就要自动解锁
-     *      3）、
-     *
      * @return
      */
     @PostMapping(value = "/lock/order")
@@ -40,7 +37,7 @@ public class WareSkuController {
             boolean lockStock = wareSkuService.orderLockStock(vo);
             return R.ok().setData(lockStock);
         } catch (NoStockException e) {
-            return R.error(NO_STOCK_EXCEPTION.getCode(), NO_STOCK_EXCEPTION.getMessage());
+            return R.error(BizCodeEnum.NO_STOCK_EXCEPTION.getCode(), BizCodeEnum.NO_STOCK_EXCEPTION.getMessage());
         }
     }
 
