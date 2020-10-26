@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Configuration
-public class GulimallOrderRabbitConfig {
+public class GulimallOrderRabbitMQConfig {
     /* 容器中的Exchange,Queue和Binding　会自动创建,在RabbitMQ不存在的情况下 */
 
     /**

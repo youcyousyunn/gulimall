@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Primary;
 
 @Slf4j
 @Configuration
-public class GulimallRabbitConfig {
+public class GulimallRabbitMQConfig {
     private RabbitTemplate rabbitTemplate;
 
 
