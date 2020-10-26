@@ -13,17 +13,18 @@ import java.util.HashMap;
 
 
 @Configuration
-public class MyRabbitMQConfig {
+public class GulimallRabbitMQConfig {
 
     /**
-     * 使用JSON序列化机制，进行消息转换
+     * 使用JSON序列化机制进行消息转换
      * @return
      */
     @Bean
     public MessageConverter messageConverter() {
         return new Jackson2JsonMessageConverter();
     }
-    // @RabbitListener(queues = "stock.release.stock.queue")
+
+    // @RabbitListener(queues = "gulimall.stock.release.queue")
     // public void handle(Message message) {
     //
     // }
@@ -34,8 +35,7 @@ public class MyRabbitMQConfig {
      */
     @Bean
     public Exchange stockEventExchange() {
-        //String name, boolean durable, boolean autoDelete, Map<String, Object> arguments
-        TopicExchange topicExchange = new TopicExchange("stock-event-exchange", true, false);
+        TopicExchange topicExchange = new TopicExchange("gulimall.stock.event.exchange", true, false);
         return topicExchange;
     }
 
@@ -45,11 +45,9 @@ public class MyRabbitMQConfig {
      */
     @Bean
     public Queue stockReleaseStockQueue() {
-        //String name, boolean durable, boolean exclusive, boolean autoDelete, Map<String, Object> arguments
-        Queue queue = new Queue("stock.release.stock.queue", true, false, false);
+        Queue queue = new Queue("gulimall.stock.release.queue", true, false, false);
         return queue;
     }
-
 
     /**
      * 延迟队列
@@ -62,8 +60,7 @@ public class MyRabbitMQConfig {
         arguments.put("x-dead-letter-routing-key", "stock.release");
         // 消息过期时间 2分钟
         arguments.put("x-message-ttl", 120000);
-
-        Queue queue = new Queue("stock.delay.queue", true, false, false,arguments);
+        Queue queue = new Queue("gulimall.stock.delay.queue", true, false, false,arguments);
         return queue;
     }
 
@@ -73,16 +70,13 @@ public class MyRabbitMQConfig {
      */
     @Bean
     public Binding stockLocked() {
-        //String destination, DestinationType destinationType, String exchange, String routingKey,
-        // 			Map<String, Object> arguments
-        Binding binding = new Binding("stock.release.stock.queue",
+        Binding binding = new Binding("gulimall.stock.release.queue",
                 Binding.DestinationType.QUEUE,
-                "stock-event-exchange",
-                "stock.release.#",
+                "gulimall.stock.event.exchange",
+                "gulimall.stock.release.#",
                 null);
         return binding;
     }
-
 
     /**
      * 交换机与延迟队列绑定
@@ -90,10 +84,10 @@ public class MyRabbitMQConfig {
      */
     @Bean
     public Binding stockLockedBinding() {
-        return new Binding("stock.delay.queue",
+        return new Binding("gulimall.stock.delay.queue",
                 Binding.DestinationType.QUEUE,
-                "stock-event-exchange",
-                "stock.locked",
+                "gulimall.stock.event.exchange",
+                "gulimall.stock.locked",
                 null);
     }
 }
