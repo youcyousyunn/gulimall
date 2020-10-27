@@ -14,9 +14,9 @@ import java.io.IOException;
 
 
 @Configuration
-public class GulimallWareSentinelConfig {
+public class GulimallSentinelConfig {
 
-    public GulimallWareSentinelConfig() {
+    public GulimallSentinelConfig() {
         WebCallbackManager.setUrlBlockHandler(new UrlBlockHandler() {
             @Override
             public void blocked(HttpServletRequest request, HttpServletResponse response, BlockException ex) throws IOException {

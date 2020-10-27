@@ -12,7 +12,7 @@ import javax.sql.DataSource;
 
 
 @Configuration
-public class MySeataConfig {
+public class GulimallSeataConfig {
     @Autowired
     DataSourceProperties dataSourceProperties;
 
