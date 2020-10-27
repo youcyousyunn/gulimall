@@ -252,22 +252,15 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         return orderEntity;
     }
 
-    /**
-     * 关闭订单
-     * @param orderEntity
-     */
     @Override
     public void closeOrder(OrderEntity orderEntity) {
-
         //关闭订单之前先查询一下数据库，判断此订单状态是否已支付
-        OrderEntity orderInfo = this.getOne(new QueryWrapper<OrderEntity>().
-                eq("order_sn",orderEntity.getOrderSn()));
-
+        OrderEntity orderInfo = this.getOne(new QueryWrapper<OrderEntity>().eq("order_sn",orderEntity.getOrderSn()));
         if (orderInfo.getStatus().equals(OrderStatusEnum.CREATE_NEW.getCode())) {
             //代付款状态进行关单
             OrderEntity orderUpdate = new OrderEntity();
             orderUpdate.setId(orderInfo.getId());
-            orderUpdate.setStatus(OrderStatusEnum.CANCLED.getCode());
+            orderUpdate.setStatus(OrderStatusEnum.CANCELD.getCode());
             this.updateById(orderUpdate);
 
             // 发送消息给MQ
@@ -276,13 +269,12 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
 
             try {
                 //TODO 确保每个消息发送成功，给每个消息做好日志记录，(给数据库保存每一个详细信息)保存每个消息的详细信息
-                rabbitTemplate.convertAndSend("order-event-exchange", "order.release.other", orderTo);
+                rabbitTemplate.convertAndSend("gulimall.order.event.exchange", "gulimall.order.release.other", orderTo);
             } catch (Exception e) {
                 //TODO 定期扫描数据库，重新发送失败的消息
             }
         }
     }
-
 
     /**
      * 获取当前订单的支付信息
@@ -621,7 +613,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
 
         //判断订单状态状态是否为已支付或者是已取消,如果不是订单状态不是已支付状态
         Integer status = orderEntity.getStatus();
-        if (status.equals(OrderStatusEnum.PAYED.getCode()) || status.equals(OrderStatusEnum.CANCLED.getCode())) {
+        if (status.equals(OrderStatusEnum.PAYED.getCode()) || status.equals(OrderStatusEnum.CANCELD.getCode())) {
             throw new RuntimeException("该订单已失效,orderNo=" + payResponse.getOrderId());
         }
 

@@ -1,72 +1,133 @@
 package com.ycs.gulimall.config;
 
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.amqp.rabbit.connection.ConnectionFactory;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
-import org.springframework.amqp.support.converter.MessageConverter;
+import org.springframework.amqp.core.Binding;
+import org.springframework.amqp.core.Exchange;
+import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.core.TopicExchange;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 
-@Slf4j
+import java.util.HashMap;
+import java.util.Map;
+
 @Configuration
 public class GulimallRabbitMQConfig {
-    private RabbitTemplate rabbitTemplate;
+    /* 容器中的Exchange,Queue和Binding　会自动创建,在RabbitMQ不存在的情况下 */
 
-
-    @Primary
+    /**
+     * 死信队列
+     * @return
+     */
     @Bean
-    public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory) {
-        RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
-        this.rabbitTemplate = rabbitTemplate;
-        rabbitTemplate.setMessageConverter(this.messageConverter());
-        this.initRabbitTemplate();
-        return rabbitTemplate;
-    }
-
-    @Bean
-    public MessageConverter messageConverter() {
-        return new Jackson2JsonMessageConverter();
+    public Queue orderDelayQueue() {
+        /*
+            String name 队列名字
+            boolean durable 是否持久化
+            boolean exclusive 是否排他
+            boolean autoDelete 是否自动删除
+            Map<String, Object> arguments) 属性
+         */
+        Map<String, Object> arguments = new HashMap<>();
+        arguments.put("x-dead-letter-exchange", "gulimall.order.event.exchange");
+        arguments.put("x-dead-letter-routing-key", "gulimall.order.release.router.key");
+        arguments.put("x-message-ttl", 60000); // 消息过期时间1分钟
+        Queue queue = new Queue("gulimall.order.delay.queue", true, false, false, arguments);
+        return queue;
     }
 
     /**
-     * 定制RabbitTemplate
-     * 1、消息代理服务器收到消息就会进行回调
-     *      1、spring.rabbitmq.publisher-confirms: true
-     *      2、设置确认回调ConfirmCallback
-     * 2、消息正确抵达队列就会进行回调
-     *      1、spring.rabbitmq.publisher-returns: true
-     *         spring.rabbitmq.template.mandatory: true
-     *      2、设置确认回调ReturnCallback
-     *
-     * 3、消费端确认(保证每个消息都被正确消费，此时才可以broker删除这个消息)
-     *
+     * 普通队列
+     * @return
      */
-    // @PostConstruct  //GulimallRabbitConfig对象创建完成以后，执行这个方法
-    public void initRabbitTemplate() {
-        /**
-         * 1、只要消息抵达消息代理服务器-Broker就ack=true
-         * correlationData：当前消息的唯一关联数据(这个是消息的唯一id)
-         * ack：消息是否成功收到
-         * cause：失败的原因
-         */
-        //设置确认回调
-        rabbitTemplate.setConfirmCallback((correlationData,ack,cause) -> {
-            log.info("接收消息内容["+correlationData+"]==>消息是否成功收到:["+ack+"]==>失败的原因:["+cause+"]");
-        });
+    @Bean
+    public Queue orderReleaseQueue() {
+        Queue queue = new Queue("gulimall.order.release.queue", true, false, false);
+        return queue;
+    }
 
-        /**
-         * 只要消息没有投递给指定的队列，就触发这个失败回调
-         * message：投递失败的消息详细信息
-         * replyCode：回复的状态码
-         * replyText：回复的文本内容
-         * exchange：当时这个消息发给哪个交换机
-         * routingKey：当时这个消息用哪个路由键
-         */
-        rabbitTemplate.setReturnCallback((message,replyCode,replyText,exchange,routingKey) -> {
-            log.info("投递失败的消息详细信息["+message+"]==>回复的状态码["+replyCode+"]" +
-                    "==>回复的文本内容["+replyText+"]==>当时这个消息发给哪个交换机["+exchange+"]==>当时这个消息用哪个路由键["+routingKey+"]");
-        });
+    /**
+     * TopicExchange
+     * @return
+     */
+    @Bean
+    public Exchange orderEventExchange() {
+        /*
+         *   String name　交换机名字
+         *   boolean durable 是否持久化
+         *   boolean autoDelete　是否自动删除
+         *   Map<String, Object> arguments 属性
+         * */
+        return new TopicExchange("gulimall.order.event.exchange", true, false);
+    }
+
+    /**
+     *　绑定死信队列
+     * @return
+     */
+    @Bean
+    public Binding orderCreateBinding() {
+        /*
+         * String destination 目的地（队列名或者交换机名字）
+         * DestinationType destinationType 目的地类型（Queue、Exhcange）
+         * String exchange 绑定的交换机
+         * String routingKey　路由键
+         * Map<String, Object> arguments　属性
+         * */
+        return new Binding("gulimall.order.delay.queue",
+                Binding.DestinationType.QUEUE,
+                "gulimall.order.event.exchange",
+                "gulimall.order.create.router.key",
+                null);
+    }
+
+    /**
+     * 绑定普通队列
+     * @return
+     */
+    @Bean
+    public Binding orderReleaseBinding() {
+        return new Binding("gulimall.order.release.queue",
+                Binding.DestinationType.QUEUE,
+                "gulimall.order.event.exchange",
+                "gulimall.order.release.router.key",
+                null);
+    }
+
+    /**
+     * 订单释放和库存释放绑定
+     * @return
+     */
+    @Bean
+    public Binding orderReleaseOtherBinding() {
+        return new Binding("gulimall.stock.release.queue",
+                Binding.DestinationType.QUEUE,
+                "gulimall.order.event.exchange",
+                "gulimall.order.release.other.#",
+                null);
+    }
+
+    /**
+     * 商品秒杀队列
+     * @return
+     */
+    @Bean
+    public Queue orderSecKillOrderQueue() {
+        Queue queue = new Queue("gulimall.order.seckill.queue", true, false, false);
+        return queue;
+    }
+
+    /**
+     * 订单释放和商品秒杀绑定
+     * @return
+     */
+    @Bean
+    public Binding orderSecKillOrderQueueBinding() {
+        Binding binding = new Binding(
+                "gulimall.order.seckill.queue",
+                Binding.DestinationType.QUEUE,
+                "gulimall.order.event.exchange",
+                "gulimall.order.seckill.router.key",
+                null);
+        return binding;
     }
 }

@@ -20,11 +20,6 @@ public interface OrderService extends IService<OrderEntity> {
      * @return
      */
     OrderEntity getOrderByOrderSn(String orderSn);
-
-    /**
-     * 关闭订单
-     * @param orderEntity
-     */
     void closeOrder(OrderEntity orderEntity);
 
     /**
