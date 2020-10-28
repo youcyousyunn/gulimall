@@ -1,4 +1,10 @@
+server:
+  port: 30000
+
 spring:
+  application:
+    name: gulimall-third-party
+    
   cloud:
     nacos:
       discovery:
@@ -11,9 +17,6 @@ spring:
         sign: 175622
         appcode: b0563c23aff8428c97a54d4f7f9e28e5
 
-
-  application:
-    name: gulimall-third-party
-
-server:
-  port: 30000
+logging:
+  level:
+    com.ycs.gulimall: debug
