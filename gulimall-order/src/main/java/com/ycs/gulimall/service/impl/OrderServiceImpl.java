@@ -341,6 +341,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
 
         //获取订单信息
         OrderEntity order = orderCreateTo.getOrder();
+        order.setId(1L);
         order.setModifyTime(new Date());
         order.setCreateTime(new Date());
         //保存订单

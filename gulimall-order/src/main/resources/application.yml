@@ -46,7 +46,9 @@ mybatis-plus:
   global-config:
     db-config:
       id-type: auto
-
+logging:
+  level:
+    com.ycs.gulimall: debug
 
 
 #暴露所有端点
