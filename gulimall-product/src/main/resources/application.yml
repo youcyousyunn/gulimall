@@ -61,8 +61,7 @@ mybatis-plus:
 
 logging:
   level:
-    com.ycs.gulimall: error
-
+    com.ycs.gulimall: debug
 
 #暴露所有端点
 management:
