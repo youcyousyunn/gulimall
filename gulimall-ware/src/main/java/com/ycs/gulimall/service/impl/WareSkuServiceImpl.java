@@ -40,7 +40,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 
-@RabbitListener(queues = "stock.release.stock.queue")
+@RabbitListener(queues = "gulimall.stock.release.queue")
 @Service("wareSkuService")
 public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> implements WareSkuService {
     @Resource
