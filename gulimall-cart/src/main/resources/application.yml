@@ -34,6 +34,10 @@ gulimall:
     maxSize: 200
     keepAliveTime: 10
 
+logging:
+  level:
+    com.ycs.gulimall: debug
+
 #暴露所有端点
 management:
   endpoints:
