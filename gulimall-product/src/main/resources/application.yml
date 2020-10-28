@@ -31,6 +31,12 @@ spring:
 feign:
   sentinel:
     enabled: true
+  #超时设置
+  client:
+    config:
+      default:
+        connectTimeout: 60000
+        readTimeout: 60000
 
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss
