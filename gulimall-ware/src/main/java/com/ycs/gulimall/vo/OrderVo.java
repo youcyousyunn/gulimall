@@ -140,7 +140,7 @@ public class OrderVo {
     /**
      * 订单备注
      */
-    private String note;
+    private String remark;
     /**
      * 确认收货状态[0->未确认；1->已确认]
      */

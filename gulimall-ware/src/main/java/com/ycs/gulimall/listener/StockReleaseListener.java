@@ -22,11 +22,9 @@ public class StockReleaseListener {
 
 
     /**
-     * 1,库存自动解锁
-     *  下订单成功且库存锁定成功,接下来的业务调用失败导致订单回滚,之前锁定的库存就要自动解锁
-     * 2,订单失败
-     *  库存锁定失败
-     *
+     * 库存自动解锁
+     * 1,下订单成功,库存锁定成功,接下来的业务调用失败,之前锁定的库存就要自动解锁
+     * 2,下订单失败,库存锁定成功,锁定库存超时自动解锁
      * 只要解锁库存的消息失败，一定要告诉服务解锁失败
      */
     @RabbitHandler
@@ -47,6 +45,10 @@ public class StockReleaseListener {
         }
     }
 
+    /**
+     * 库存自动解锁
+     * １,下订单成功,库存锁定成功,订单超时未支付解锁库存
+     */
     @RabbitHandler
     public void handleOrderCloseRelease(OrderTo orderTo, Message message, Channel channel) throws IOException {
         log.info("******收到订单关闭，准备解锁库存的信息******: {}", orderTo.toString());

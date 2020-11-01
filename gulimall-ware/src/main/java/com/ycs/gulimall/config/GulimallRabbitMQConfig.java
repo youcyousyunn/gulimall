@@ -24,11 +24,6 @@ public class GulimallRabbitMQConfig {
         return new Jackson2JsonMessageConverter();
     }
 
-    // @RabbitListener(queues = "gulimall.stock.release.queue")
-    // public void handle(Message message) {
-    //
-    // }
-
     /**
      * 库存服务默认的交换机
      * @return
@@ -56,8 +51,8 @@ public class GulimallRabbitMQConfig {
     @Bean
     public Queue stockDelay() {
         HashMap<String, Object> arguments = new HashMap<>();
-        arguments.put("x-dead-letter-exchange", "stock-event-exchange");
-        arguments.put("x-dead-letter-routing-key", "stock.release");
+        arguments.put("x-dead-letter-exchange", "gulimall.stock.event.exchange");
+        arguments.put("x-dead-letter-routing-key", "gulimall.stock.release.router.key");
         // 消息过期时间 2分钟
         arguments.put("x-message-ttl", 120000);
         Queue queue = new Queue("gulimall.stock.delay.queue", true, false, false,arguments);
@@ -73,7 +68,7 @@ public class GulimallRabbitMQConfig {
         Binding binding = new Binding("gulimall.stock.release.queue",
                 Binding.DestinationType.QUEUE,
                 "gulimall.stock.event.exchange",
-                "gulimall.stock.release.#",
+                "gulimall.stock.release.router.key",
                 null);
         return binding;
     }
@@ -87,7 +82,7 @@ public class GulimallRabbitMQConfig {
         return new Binding("gulimall.stock.delay.queue",
                 Binding.DestinationType.QUEUE,
                 "gulimall.stock.event.exchange",
-                "gulimall.stock.locked",
+                "gulimall.stock.locked.router.key",
                 null);
     }
 }

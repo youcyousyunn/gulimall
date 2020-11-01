@@ -25,8 +25,8 @@ import com.ycs.gulimall.vo.OrderVo;
 import com.ycs.gulimall.vo.SkuHasStockVo;
 import com.ycs.gulimall.vo.WareSkuLockVo;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,8 +39,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-
-@RabbitListener(queues = "gulimall.stock.release.queue")
+@Slf4j
 @Service("wareSkuService")
 public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> implements WareSkuService {
     @Resource
@@ -188,7 +187,7 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
                     StockDetailTo detailTo = new StockDetailTo();
                     BeanUtils.copyProperties(taskDetailEntity,detailTo);
                     lockedTo.setDetailTo(detailTo);
-                    rabbitTemplate.convertAndSend("stock-event-exchange","stock.locked",lockedTo);
+                    rabbitTemplate.convertAndSend("gulimall.stock.event.exchange","gulimall.stock.locked.router.key",lockedTo);
                     break;
                 } else {
                     //当前仓库锁失败，重试下一个仓库
@@ -260,7 +259,6 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void unlockStock(OrderTo orderTo) {
-
         String orderSn = orderTo.getOrderSn();
         //查一下最新的库存解锁状态，防止重复解锁库存
         WareOrderTaskEntity orderTaskEntity = wareOrderTaskService.getOrderTaskByOrderSn(orderSn);
@@ -287,7 +285,6 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
      * @param taskDetailId
      */
     public void unLockStock(Long skuId,Long wareId,Integer num,Long taskDetailId) {
-
         //库存解锁
         wareSkuDao.unLockStock(skuId,wareId,num);
 
@@ -297,7 +294,6 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
         //变为已解锁
         taskDetailEntity.setLockStatus(2);
         wareOrderTaskDetailService.updateById(taskDetailEntity);
-
     }
 
 
