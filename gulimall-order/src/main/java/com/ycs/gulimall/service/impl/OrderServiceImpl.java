@@ -217,10 +217,10 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
                 if (r.getCode() == 0) {
                     //锁定成功
                     responseVo.setOrder(order.getOrder());
-                    // int i = 10/0;
+                     int i = 10/0;
 
                     //订单创建成功，发送消息给MQ
-                    rabbitTemplate.convertAndSend("order-event-exchange","order.create.order",order.getOrder());
+                    rabbitTemplate.convertAndSend("gulimall.order.event.exchange","gulimall.order.create.router.key",order.getOrder());
 
                     //删除购物车里的数据
                     redisTemplate.delete(CART_PREFIX + memberResponseVo.getId());
@@ -246,16 +246,14 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
      */
     @Override
     public OrderEntity getOrderByOrderSn(String orderSn) {
-
         OrderEntity orderEntity = this.baseMapper.selectOne(new QueryWrapper<OrderEntity>().eq("order_sn", orderSn));
-
         return orderEntity;
     }
 
     @Override
     public void closeOrder(OrderEntity orderEntity) {
         //关闭订单之前先查询一下数据库，判断此订单状态是否已支付
-        OrderEntity orderInfo = this.getOne(new QueryWrapper<OrderEntity>().eq("order_sn",orderEntity.getOrderSn()));
+        OrderEntity orderInfo = this.getOne(new QueryWrapper<OrderEntity>().eq("order_sn", orderEntity.getOrderSn()));
         if (orderInfo.getStatus().equals(OrderStatusEnum.CREATE_NEW.getCode())) {
             //代付款状态进行关单
             OrderEntity orderUpdate = new OrderEntity();

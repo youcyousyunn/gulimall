@@ -13,12 +13,6 @@ public interface OrderService extends IService<OrderEntity> {
     OrderConfirmVo confirmOrder() throws ExecutionException, InterruptedException;
     PageUtils queryPage(Map<String, Object> params);
     SubmitOrderResponseVo submitOrder(OrderSubmitVo vo);
-
-    /**
-     * 按照订单号获取订单信息
-     * @param orderSn
-     * @return
-     */
     OrderEntity getOrderByOrderSn(String orderSn);
     void closeOrder(OrderEntity orderEntity);
 

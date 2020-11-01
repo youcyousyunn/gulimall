@@ -14,7 +14,7 @@ import java.io.IOException;
 
 @Slf4j
 @Component
-@RabbitListener(queues = "order.seckill.order.queue")
+@RabbitListener(queues = "gulimall.order.seckill.queue")
 public class OrderSeckillListener {
     @Resource
     private OrderService orderService;

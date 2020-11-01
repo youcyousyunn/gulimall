@@ -39,6 +39,6 @@ public class OrderOperateHistoryEntity implements Serializable {
 	/**
 	 * 备注
 	 */
-	private String note;
+	private String remark;
 
 }
