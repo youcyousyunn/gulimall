@@ -6,7 +6,6 @@ import java.math.BigDecimal;
 
 @Data
 public class SeckillSkuVo {
-
     private Long id;
     /**
      * 活动id

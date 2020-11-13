@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 import java.io.IOException;
 
 @Configuration
-public class MyRedissonConfig {
+public class GulimallRedissonConfig {
 
     /**
      * 所有对Redisson的使用都是通过RedissonClient
@@ -20,7 +20,7 @@ public class MyRedissonConfig {
     public RedissonClient redissonClient() throws IOException {
         //1、创建配置
         Config config = new Config();
-        config.useSingleServer().setAddress("redis://192.168.77.130:6379");
+        config.useSingleServer().setAddress("redis://127.0.0.1:6379");
 
         //2、根据Config创建出RedissonClient实例
         //Redis url should start with redis:// or rediss://

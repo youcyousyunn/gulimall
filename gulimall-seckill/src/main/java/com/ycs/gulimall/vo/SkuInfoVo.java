@@ -6,7 +6,6 @@ import java.math.BigDecimal;
 
 @Data
 public class SkuInfoVo {
-
     private Long skuId;
     /**
      * spuId
@@ -48,5 +47,4 @@ public class SkuInfoVo {
      * 销量
      */
     private Long saleCount;
-
 }

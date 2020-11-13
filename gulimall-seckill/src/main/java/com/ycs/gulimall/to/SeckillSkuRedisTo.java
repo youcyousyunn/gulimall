@@ -7,7 +7,6 @@ import java.math.BigDecimal;
 
 @Data
 public class SeckillSkuRedisTo {
-
     /**
      * 活动id
      */

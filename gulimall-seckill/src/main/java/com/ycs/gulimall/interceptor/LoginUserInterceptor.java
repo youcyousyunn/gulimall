@@ -15,8 +15,8 @@ import static com.ycs.gulimall.constant.AuthConstant.LOGIN_USER;
 
 @Component
 public class LoginUserInterceptor implements HandlerInterceptor {
-
     public static ThreadLocal<MemberResponseVo> loginUser = new ThreadLocal<>();
+
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -37,7 +37,7 @@ public class LoginUserInterceptor implements HandlerInterceptor {
                 //未登录，返回登录页面
                 response.setContentType("text/html;charset=UTF-8");
                 PrintWriter out = response.getWriter();
-                out.println("<script>alert('请先进行登录，再进行后续操作！');location.href='http://auth.gulimall.com/login.html'</script>");
+                out.println("<script>alert('请先进行登录，再进行后续操作！');location.href='http://www.auth.gulimall.com/login.html'</script>");
                 // session.setAttribute("msg", "请先进行登录");
                 // response.sendRedirect("http://auth.gulimall.com/login.html");
                 return false;

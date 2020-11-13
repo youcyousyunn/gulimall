@@ -7,7 +7,6 @@ import java.util.List;
 
 @Data
 public class SeckillSessionWithSkusVo {
-
     private Long id;
     /**
      * 场次名称
@@ -29,7 +28,5 @@ public class SeckillSessionWithSkusVo {
      * 创建时间
      */
     private Date createTime;
-
     private List<SeckillSkuVo> relationSkus;
-
 }
