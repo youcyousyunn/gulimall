@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 import java.io.IOException;
 
 @Configuration
-public class MyRedissonConfig {
+public class GulimallRedissonConfig {
 
     /**
      * 所有对Redisson的使用都是通过RedissonClient

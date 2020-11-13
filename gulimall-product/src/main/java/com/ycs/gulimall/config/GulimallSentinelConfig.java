@@ -16,9 +16,9 @@ import java.io.IOException;
  * 自定义阻塞返回方法
  */
 @Configuration
-public class GulimallProductSentinelConfig {
+public class GulimallSentinelConfig {
 
-    public GulimallProductSentinelConfig() {
+    public GulimallSentinelConfig() {
         WebCallbackManager.setUrlBlockHandler(new UrlBlockHandler() {
             @Override
             public void blocked(HttpServletRequest request, HttpServletResponse response, BlockException ex) throws IOException {
