@@ -20,6 +20,7 @@ public class SeckillSkuRelationController {
     @Autowired
     private SeckillSkuRelationService seckillSkuRelationService;
 
+
     /**
      * 列表
      */
@@ -29,7 +30,6 @@ public class SeckillSkuRelationController {
         PageUtils page = seckillSkuRelationService.queryPage(params);
         return R.ok().put("page", page);
     }
-
 
     /**
      * 信息
@@ -45,7 +45,6 @@ public class SeckillSkuRelationController {
      * 保存
      */
     @RequestMapping("/save")
-    //@RequiresPermissions("coupon:seckillskurelation:save")
     public R save(@RequestBody SeckillSkuRelationEntity seckillSkuRelation){
 		seckillSkuRelationService.save(seckillSkuRelation);
         return R.ok();
@@ -70,5 +69,4 @@ public class SeckillSkuRelationController {
 		seckillSkuRelationService.removeByIds(Arrays.asList(ids));
         return R.ok();
     }
-
 }

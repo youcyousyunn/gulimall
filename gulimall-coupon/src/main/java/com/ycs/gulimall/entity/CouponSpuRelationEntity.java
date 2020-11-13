@@ -31,5 +31,4 @@ public class CouponSpuRelationEntity implements Serializable {
 	 * spu_name
 	 */
 	private String spuName;
-
 }

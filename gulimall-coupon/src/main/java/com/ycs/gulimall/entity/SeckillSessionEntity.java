@@ -45,5 +45,4 @@ public class SeckillSessionEntity implements Serializable {
 
 	@TableField(exist = false)
 	private List<SeckillSkuRelationEntity> relationSkus;
-
 }

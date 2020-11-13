@@ -23,9 +23,7 @@ public class SeckillSkuRelationServiceImpl extends ServiceImpl<SeckillSkuRelatio
 
         //1、获取key
         String key = (String) params.get("key");
-
         String promotionSessionId = (String) params.get("promotionSessionId");
-
         if (!StringUtils.isEmpty(key)) {
             queryWrapper.eq("id", key);
         }

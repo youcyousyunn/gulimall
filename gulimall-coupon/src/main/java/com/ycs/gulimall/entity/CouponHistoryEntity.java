@@ -56,5 +56,4 @@ public class CouponHistoryEntity implements Serializable {
 	 * 订单号
 	 */
 	private Long orderSn;
-
 }

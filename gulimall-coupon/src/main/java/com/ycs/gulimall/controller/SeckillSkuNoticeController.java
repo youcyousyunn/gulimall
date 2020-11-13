@@ -25,18 +25,15 @@ public class SeckillSkuNoticeController {
      * 列表
      */
     @RequestMapping("/list")
-    //@RequiresPermissions("coupon:seckillskunotice:list")
     public R list(@RequestParam Map<String, Object> params){
         PageUtils page = seckillSkuNoticeService.queryPage(params);
         return R.ok().put("page", page);
     }
 
-
     /**
      * 信息
      */
     @RequestMapping("/info/{id}")
-    //@RequiresPermissions("coupon:seckillskunotice:info")
     public R info(@PathVariable("id") Long id){
 		SeckillSkuNoticeEntity seckillSkuNotice = seckillSkuNoticeService.getById(id);
         return R.ok().put("seckillSkuNotice", seckillSkuNotice);
@@ -46,7 +43,6 @@ public class SeckillSkuNoticeController {
      * 保存
      */
     @RequestMapping("/save")
-    //@RequiresPermissions("coupon:seckillskunotice:save")
     public R save(@RequestBody SeckillSkuNoticeEntity seckillSkuNotice){
 		seckillSkuNoticeService.save(seckillSkuNotice);
         return R.ok();
@@ -71,5 +67,4 @@ public class SeckillSkuNoticeController {
 		seckillSkuNoticeService.removeByIds(Arrays.asList(ids));
         return R.ok();
     }
-
 }

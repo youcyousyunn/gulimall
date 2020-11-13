@@ -11,14 +11,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-
-/**
- * 秒杀活动场次
- *
- * @author 夏沫止水
- * @email HeJieLin@gulimall.com
- * @date 2020-05-22 19:35:30
- */
 @RestController
 @RequestMapping("coupon/seckillsession")
 public class SeckillSessionController {
@@ -32,9 +24,7 @@ public class SeckillSessionController {
      */
     @GetMapping(value = "/last3DaysSession")
     public R getLates3DaySession() {
-
         List<SeckillSessionEntity> seckillSessionEntities = seckillSessionService.getLates3DaySession();
-
         return R.ok().setData(seckillSessionEntities);
     }
 
@@ -42,7 +32,6 @@ public class SeckillSessionController {
      * 列表
      */
     @RequestMapping("/list")
-    //@RequiresPermissions("coupon:seckillsession:list")
     public R list(@RequestParam Map<String, Object> params){
         PageUtils page = seckillSessionService.queryPage(params);
         return R.ok().put("page", page);
@@ -53,7 +42,6 @@ public class SeckillSessionController {
      * 信息
      */
     @RequestMapping("/info/{id}")
-    //@RequiresPermissions("coupon:seckillsession:info")
     public R info(@PathVariable("id") Long id){
 		SeckillSessionEntity seckillSession = seckillSessionService.getById(id);
 
@@ -64,10 +52,8 @@ public class SeckillSessionController {
      * 保存
      */
     @RequestMapping("/save")
-    //@RequiresPermissions("coupon:seckillsession:save")
     public R save(@RequestBody SeckillSessionEntity seckillSession){
 		seckillSessionService.save(seckillSession);
-
         return R.ok();
     }
 
@@ -78,7 +64,6 @@ public class SeckillSessionController {
     //@RequiresPermissions("coupon:seckillsession:update")
     public R update(@RequestBody SeckillSessionEntity seckillSession){
 		seckillSessionService.updateById(seckillSession);
-
         return R.ok();
     }
 
@@ -89,8 +74,6 @@ public class SeckillSessionController {
     //@RequiresPermissions("coupon:seckillsession:delete")
     public R delete(@RequestBody Long[] ids){
 		seckillSessionService.removeByIds(Arrays.asList(ids));
-
         return R.ok();
     }
-
 }

@@ -44,5 +44,4 @@ public class SeckillPromotionEntity implements Serializable {
 	 * 创建人
 	 */
 	private Long userId;
-
 }

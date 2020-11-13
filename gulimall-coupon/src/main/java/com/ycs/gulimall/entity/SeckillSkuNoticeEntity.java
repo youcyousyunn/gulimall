@@ -44,5 +44,4 @@ public class SeckillSkuNoticeEntity implements Serializable {
 	 * 通知方式[0-短信，1-邮件]
 	 */
 	private Integer noticeType;
-
 }

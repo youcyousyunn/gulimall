@@ -47,5 +47,4 @@ public class HomeSubjectEntity implements Serializable {
 	 * 专题图片地址
 	 */
 	private String img;
-
 }

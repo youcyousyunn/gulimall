@@ -36,11 +36,8 @@ public class SkuFullReductionServiceImpl extends ServiceImpl<SkuFullReductionDao
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
-
         QueryWrapper<SkuFullReductionEntity> queryWrapper = new QueryWrapper<SkuFullReductionEntity>();
-
         String key = (String) params.get("key");
-
         if (!StringUtils.isEmpty(key)) {
             queryWrapper.eq("id",key).or().eq("sku_id",key);
         }

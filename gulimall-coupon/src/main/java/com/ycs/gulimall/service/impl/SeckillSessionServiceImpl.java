@@ -50,8 +50,6 @@ public class SeckillSessionServiceImpl extends ServiceImpl<SeckillSessionDao, Se
 
     @Override
     public List<SeckillSessionEntity> getLates3DaySession() {
-
-        //计算最近三天
         //查出这三天参与秒杀活动的商品
         List<SeckillSessionEntity> list = this.baseMapper.selectList(new QueryWrapper<SeckillSessionEntity>()
                 .between("start_time", startTime(), endTime()));

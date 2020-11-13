@@ -36,5 +36,4 @@ public class SkuFullReductionEntity implements Serializable {
 	 * 是否参与其他优惠
 	 */
 	private Integer addOther;
-
 }

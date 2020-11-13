@@ -40,5 +40,4 @@ public class SkuLadderEntity implements Serializable {
 	 * 是否叠加其他优惠[0-不可叠加，1-可叠加]
 	 */
 	private Integer addOther;
-
 }

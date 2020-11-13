@@ -97,5 +97,4 @@ public class CouponEntity implements Serializable {
 	 * 发布状态[0-未发布，1-已发布]
 	 */
 	private Integer publish;
-
 }

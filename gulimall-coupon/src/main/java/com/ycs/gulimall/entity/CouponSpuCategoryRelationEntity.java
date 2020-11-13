@@ -31,5 +31,4 @@ public class CouponSpuCategoryRelationEntity implements Serializable {
 	 * 产品分类名称
 	 */
 	private String categoryName;
-
 }

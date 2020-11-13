@@ -64,5 +64,4 @@ public class HomeAdvEntity implements Serializable {
 	 * 审核者
 	 */
 	private Long authId;
-
 }

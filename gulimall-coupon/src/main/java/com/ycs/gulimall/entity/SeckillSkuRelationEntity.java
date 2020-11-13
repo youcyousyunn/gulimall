@@ -48,5 +48,4 @@ public class SeckillSkuRelationEntity implements Serializable {
 	 * 排序
 	 */
 	private Integer seckillSort;
-
 }

@@ -35,5 +35,4 @@ public class HomeSubjectSpuEntity implements Serializable {
 	 * 排序
 	 */
 	private Integer sort;
-
 }

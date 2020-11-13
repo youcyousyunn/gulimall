@@ -32,18 +32,15 @@ public class SkuFullReductionController {
      * 列表
      */
     @RequestMapping("/list")
-    //@RequiresPermissions("coupon:skufullreduction:list")
     public R list(@RequestParam Map<String, Object> params){
         PageUtils page = skuFullReductionService.queryPage(params);
         return R.ok().put("page", page);
     }
 
-
     /**
      * 信息
      */
     @RequestMapping("/info/{id}")
-    //@RequiresPermissions("coupon:skufullreduction:info")
     public R info(@PathVariable("id") Long id){
 		SkuFullReductionEntity skuFullReduction = skuFullReductionService.getById(id);
         return R.ok().put("skuFullReduction", skuFullReduction);
@@ -53,7 +50,6 @@ public class SkuFullReductionController {
      * 保存
      */
     @RequestMapping("/save")
-    //@RequiresPermissions("coupon:skufullreduction:save")
     public R save(@RequestBody SkuFullReductionEntity skuFullReduction){
 		skuFullReductionService.save(skuFullReduction);
         return R.ok();
@@ -78,5 +74,4 @@ public class SkuFullReductionController {
 		skuFullReductionService.removeByIds(Arrays.asList(ids));
         return R.ok();
     }
-
 }
