@@ -30,7 +30,7 @@ public class SeckillSessionController {
      * 查询最近三天需要参加秒杀商品的信息
      * @return
      */
-    @GetMapping(value = "/Lates3DaySession")
+    @GetMapping(value = "/last3DaysSession")
     public R getLates3DaySession() {
 
         List<SeckillSessionEntity> seckillSessionEntities = seckillSessionService.getLates3DaySession();
