@@ -27,8 +27,8 @@ public class SeckillController {
     @ResponseBody
     public R getCurrentSeckillSkus() {
         //获取到当前可以参加秒杀商品的信息
-        List<SeckillSkuRedisTo> vos = seckillService.getCurrentSeckillSkus();
-        return R.ok().setData(vos);
+        List<SeckillSkuRedisTo> seckillSkuRedisTos = seckillService.getCurrentSeckillSkus();
+        return R.ok().setData(seckillSkuRedisTos);
     }
 
     /**
@@ -51,15 +51,13 @@ public class SeckillController {
      * @return
      */
     @GetMapping(value = "/kill")
-    public String seckill(@RequestParam("killId") String killId,
-                          @RequestParam("key") String key,
-                          @RequestParam("num") Integer num,
+    public String seckill(@RequestParam("killId") String killId, @RequestParam("key") String key, @RequestParam("num") Integer num,
                           Model model) {
         String orderSn = null;
         try {
             //1、判断是否登录
-            orderSn = seckillService.kill(killId,key,num);
-            model.addAttribute("orderSn",orderSn);
+            orderSn = seckillService.kill(killId, key, num);
+            model.addAttribute("orderSn", orderSn);
         } catch (Exception e) {
             e.printStackTrace();
         }

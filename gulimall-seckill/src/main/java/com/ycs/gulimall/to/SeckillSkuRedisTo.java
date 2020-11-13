@@ -36,15 +36,23 @@ public class SeckillSkuRedisTo {
      */
     private Integer seckillSort;
 
-    //sku的详细信息
+    /**
+     * sku的详细信息
+     */
     private SkuInfoVo skuInfo;
 
-    //当前商品秒杀的开始时间
+    /**
+     * 秒杀随机码
+     */
+    private String randomCode;
+
+    /**
+     * 秒杀开始时间
+     */
     private Long startTime;
 
-    //当前商品秒杀的结束时间
+    /**
+     * 秒杀结束时间
+     */
     private Long endTime;
-
-    //当前商品秒杀的随机码
-    private String randomCode;
 }

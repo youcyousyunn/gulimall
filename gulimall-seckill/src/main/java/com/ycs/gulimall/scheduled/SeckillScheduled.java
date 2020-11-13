@@ -24,20 +24,19 @@ public class SeckillScheduled {
     private SeckillService seckillService;
     @Autowired
     private RedissonClient redissonClient;
-    
+    private final String SECKILL_UPLOAD_LOCK = "seckill:upload:lock:"; //秒杀商品上架功能的锁
 
-    //秒杀商品上架功能的锁
-    private final String UPLOAD_LOCK = "seckill:upload:lock";
 
-    //TODO 保证幂等性问题
-    // @Scheduled(cron = "*/5 * * * * ? ")
-    @Scheduled(cron = "0 0 1/1 * * ? ")
+    /**
+     * 上架商品并保证幂等性问题
+     */
+    @Scheduled(cron = "*/5 * * * * ? ")
     public void uploadSeckillSkuLatest3Days() {
         //1、重复上架无需处理
         log.info("上架秒杀的商品...");
 
         //分布式锁
-        RLock lock = redissonClient.getLock(UPLOAD_LOCK);
+        RLock lock = redissonClient.getLock(SECKILL_UPLOAD_LOCK);
         try {
             //加锁
             lock.lock(10, TimeUnit.SECONDS);
