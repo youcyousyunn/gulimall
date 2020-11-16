@@ -103,7 +103,7 @@
         </li>
         <span>|</span>
         <li>
-          <a href="http://member.gulimall.com/memberOrder.html">我的订单</a>
+          <a href="http://www.member.gulimall.com/memberOrder.html">我的订单</a>
         </li>
 
 
@@ -585,7 +585,7 @@
     window.location.href="http://www.search.gulimall.com/list.html?keyword="+keyword;
   }
 
-  $.get("http://seckill.gulimall.com/getCurrentSeckillSkus", function(res) {
+  $.get("http://www.seckill.gulimall.com/getCurrentSeckillSkus", function(res) {
     if (res.data.length > 0) {
       res.data.forEach(function (item) {
         $("<li onclick='toDetail(" + item.skuId + ")'></li>").append($("<img style='width: 130px; height: 130px' src='" + item.skuInfo.skuDefaultImg + "' />"))
