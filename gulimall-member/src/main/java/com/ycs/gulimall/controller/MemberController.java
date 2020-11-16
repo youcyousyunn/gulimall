@@ -3,7 +3,6 @@ package com.ycs.gulimall.controller;
 import com.ycs.gulimall.entity.MemberEntity;
 import com.ycs.gulimall.exception.BizCodeEnum;
 import com.ycs.gulimall.exception.RegisterException;
-import com.ycs.gulimall.exception.UsernameException;
 import com.ycs.gulimall.service.MemberService;
 import com.ycs.gulimall.utils.PageUtils;
 import com.ycs.gulimall.utils.R;

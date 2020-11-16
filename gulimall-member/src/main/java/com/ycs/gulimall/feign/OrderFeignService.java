@@ -15,6 +15,6 @@ public interface OrderFeignService {
      * @param params
      * @return
      */
-    @PostMapping("/order/order/listWithItem")
+    @PostMapping("/order/listWithItem")
     R listWithItem(@RequestBody Map<String, Object> params);
 }

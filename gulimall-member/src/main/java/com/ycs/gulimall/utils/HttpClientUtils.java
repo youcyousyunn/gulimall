@@ -40,9 +40,11 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 /**
- *  依赖的jar包有：commons-lang-2.6.jar、httpclient-4.3.2.jar、httpcore-4.3.1.jar、commons-io-2.4.jar
- * @author zhaoyb
- *
+ * 依赖的jar包有：
+ * commons-lang-2.6.jar、
+ * httpclient-4.3.2.jar、
+ * httpcore-4.3.1.jar、
+ * commons-io-2.4.jar
  */
 public class HttpClientUtils {
 	public static final int connTimeout=10000;
@@ -152,7 +154,6 @@ public class HttpClientUtils {
 	 */
 	public static String postForm(String url, Map<String, String> params, Map<String, String> headers, Integer connTimeout,Integer readTimeout) throws ConnectTimeoutException,
 			SocketTimeoutException, Exception {
-
 		HttpClient client = null;
 		HttpPost post = new HttpPost(url);
 		try {
@@ -217,7 +218,6 @@ public class HttpClientUtils {
 	 */
 	public static String get(String url, String charset, Integer connTimeout,Integer readTimeout)
 			throws ConnectTimeoutException,SocketTimeoutException, Exception {
-
 		HttpClient client = null;
 		HttpGet get = new HttpGet(url);
 		String result = "";
@@ -257,7 +257,6 @@ public class HttpClientUtils {
 
 	/**
 	 * 从 response 里获取 charset
-	 *
 	 * @param ressponse
 	 * @return
 	 */
@@ -272,8 +271,6 @@ public class HttpClientUtils {
 		}
 		return null;
 	}
-
-
 
 	/**
 	 * 创建 SSL连接

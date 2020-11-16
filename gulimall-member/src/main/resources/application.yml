@@ -1,7 +1,13 @@
 server:
   port: 8000
+  servlet:
+    session:
+      timeout: 30m
 
 spring:
+  application:
+    name: gulimall-member
+
   datasource:
     username: gulimall
     password: 123456
@@ -25,9 +31,12 @@ spring:
 feign:
   sentinel:
     enabled: true
-
-  application:
-    name: gulimall-member
+  #超时设置
+  client:
+    config:
+      default:
+        connectTimeout: 60000
+        readTimeout: 60000
 
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss

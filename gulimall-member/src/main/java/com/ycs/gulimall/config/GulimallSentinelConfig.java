@@ -16,10 +16,9 @@ import java.io.IOException;
  * 自定义阻塞返回方法
  */
 @Configuration
-public class GulimallMemberSentinelConfig {
+public class GulimallSentinelConfig {
 
-    public GulimallMemberSentinelConfig() {
-
+    public GulimallSentinelConfig() {
         WebCallbackManager.setUrlBlockHandler(new UrlBlockHandler() {
             @Override
             public void blocked(HttpServletRequest request, HttpServletResponse response, BlockException ex) throws IOException {
@@ -27,10 +26,7 @@ public class GulimallMemberSentinelConfig {
                 response.setCharacterEncoding("UTF-8");
                 response.setContentType("application/json");
                 response.getWriter().write(JSON.toJSONString(error));
-
             }
         });
-
     }
-
 }
