@@ -217,7 +217,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
                 if (r.getCode() == 0) {
                     //锁定成功
                     responseVo.setOrder(order.getOrder());
-                     int i = 10/0;
+//                     int i = 10/0;
 
                     //订单创建成功，发送消息给MQ
                     rabbitTemplate.convertAndSend("gulimall.order.event.exchange","gulimall.order.create.router.key",order.getOrder());
@@ -308,9 +308,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
      */
     @Override
     public PageUtils queryPageWithItem(Map<String, Object> params) {
-
         MemberResponseVo memberResponseVo = LoginUserInterceptor.loginUser.get();
-
         IPage<OrderEntity> page = this.page(
                 new Query<OrderEntity>().getPage(params),
                 new QueryWrapper<OrderEntity>()
@@ -327,7 +325,6 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         }).collect(Collectors.toList());
 
         page.setRecords(orderEntityList);
-
         return new PageUtils(page);
     }
 
