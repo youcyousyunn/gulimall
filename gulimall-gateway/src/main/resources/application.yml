@@ -93,12 +93,12 @@ spring:
         - id: gulimall_member_route
           uri: lb://gulimall-member
           predicates:
-            - Host=member.gulimall.com
+            - Host=www.member.gulimall.com
 
         - id: gulimall_seckill_route
           uri: lb://gulimall-seckill
           predicates:
-            - Host=seckill.gulimall.com
+            - Host=www.seckill.gulimall.com
 
 #暴露所有端点
 management:
