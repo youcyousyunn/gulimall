@@ -106,9 +106,15 @@
             <version>2.6</version>
         </dependency>
 
+        <!-- 服务熔断与降级 -->
         <dependency>
             <groupId>com.alibaba.cloud</groupId>
             <artifactId>spring-cloud-starter-alibaba-sentinel</artifactId>
+        </dependency>
+        <!-- Endpoint支持 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
 
         <!-- 引入链路追踪sleuth -->

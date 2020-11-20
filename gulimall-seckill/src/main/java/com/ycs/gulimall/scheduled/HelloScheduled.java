@@ -41,7 +41,7 @@ public class HelloScheduled {
      *      解决：使用异步任务 + 定时任务来完成定时任务不阻塞的功能
      */
      @Async
-     @Scheduled(cron = "*/5 * * ? * 5")
+     @Scheduled(cron = "0 0 1/1 ? * *")
      public void hello() {
          log.info("定时任务测试方法执行...");
          try {

@@ -30,10 +30,10 @@ public class SeckillScheduled {
     /**
      * 上架商品并保证幂等性问题
      */
-    @Scheduled(cron = "*/5 * * * * ? ")
+    @Scheduled(cron = "0 0 1 * * ? ")
     public void uploadSeckillSkuLatest3Days() {
         //1、重复上架无需处理
-        log.info("上架秒杀的商品...");
+        log.info("上架秒杀商品开始...");
 
         //分布式锁
         RLock lock = redissonClient.getLock(SECKILL_UPLOAD_LOCK);
