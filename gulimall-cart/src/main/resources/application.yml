@@ -10,33 +10,17 @@ spring:
       discovery:
         server-addr: 127.0.0.1:8848
 
-#    sentinel:
-#      transport:
+    sentinel:
+      transport:
+        #默认8719端口，假如被占用会自动从8719开始依次+1扫描，直至找到未被占用的端口
+        port: 8719
         #配置sentinel dashboard地址
-#        dashboard: localhost:8080
-
-  redis:
-    port: 6379
-    host: 127.0.0.1
+        dashboard: 127.0.0.1:8080
 
 #开启feign对sentinel的支持
 feign:
   sentinel:
     enabled: true
-
-  session:
-    store-type: redis
-
-#配置线程池
-gulimall:
-  thread:
-    coreSize: 20
-    maxSize: 200
-    keepAliveTime: 10
-
-logging:
-  level:
-    com.ycs.gulimall: debug
 
 #暴露所有端点
 management:

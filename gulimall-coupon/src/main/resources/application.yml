@@ -4,36 +4,23 @@ server:
 spring:
   application:
     name: gulimall-coupon
-  datasource:
-    username: gulimall
-    password: 123456
-    url: jdbc:mysql://127.0.0.1:3306/gulimall_sms?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
-    driver-class-name: com.mysql.cj.jdbc.Driver
+
   cloud:
     nacos:
       discovery:
         server-addr: 127.0.0.1:8848
 
-#    sentinel:
-#      transport:
-#        #配置sentinel dashboard地址
-#        dashboard: localhost:8080
+    sentinel:
+      transport:
+        #默认8719端口，假如被占用会自动从8719开始依次+1扫描，直至找到未被占用的端口
+        port: 8719
+        #配置sentinel dashboard地址
+        dashboard: 127.0.0.1:8080
 
 #开启feign对sentinel的支持
 feign:
   sentinel:
     enabled: true
-
-mybatis-plus:
-  mapper-locations: classpath:/mapper/**/*.xml
-
-  #\u8BBE\u7F6E\u5B9E\u4F53\u7C7B\u7684\u81EA\u589E\u4E3B\u952E
-  global-config:
-    db-config:
-      id-type: auto
-logging:
-  level:
-    com.ycs.gulimall: debug
 
 #暴露所有端点
 management:

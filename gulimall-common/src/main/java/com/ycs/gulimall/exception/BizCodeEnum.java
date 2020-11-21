@@ -19,9 +19,10 @@ package com.ycs.gulimall.exception;
  **/
 public enum BizCodeEnum {
     UNKNOW_EXCEPTION(10000,"系统未知异常"),
-    VALID_EXCEPTION(10001,"参数格式校验失败"),
-    TO_MANY_REQUEST(10002,"请求流量过大，请稍后再试"),
-    SMS_CODE_EXCEPTION(10002,"验证码获取频率太高，请稍后再试"),
+    GATEWAY_LIMIT_REQUEST(10001,"网关检测到请求流量过大，请稍后再试"),
+    VALID_EXCEPTION(10002,"参数格式校验失败"),
+    TO_MANY_REQUEST(10003,"请求流量过大，请稍后再试"),
+    SMS_CODE_EXCEPTION(10004,"验证码获取频率太高，请稍后再试"),
     PRODUCT_UP_EXCEPTION(11000,"商品上架异常"),
     ORDER_TOKEN_EXPIRED(12001,"订单令牌信息过期，请刷新页面再次提交"),
     ORDER_PRODUCT_PRICE_CHANGED(12002,"订单商品价格发生变化，请确认后再次提交"),

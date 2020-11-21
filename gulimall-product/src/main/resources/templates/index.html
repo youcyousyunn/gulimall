@@ -585,7 +585,7 @@
     window.location.href="http://www.search.gulimall.com/list.html?keyword="+keyword;
   }
 
-  $.get("http://www.seckill.gulimall.com/getCurrentSeckillSkus", function(res) {
+  $.get("http://www.seckill.gulimall.com/seckill/getCurrentSeckillSkus", function(res) {
     if (res.data.length > 0) {
       res.data.forEach(function (item) {
         $("<li onclick='toDetail(" + item.skuId + ")'></li>").append($("<img style='width: 130px; height: 130px' src='" + item.skuInfo.skuDefaultImg + "' />"))
