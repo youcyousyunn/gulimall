@@ -26,6 +26,7 @@ public class OrderSeckillListener {
             orderService.createSeckillOrder(orderTo);
             channel.basicAck(message.getMessageProperties().getDeliveryTag(),false);
         } catch (Exception e) {
+            //拒绝消费，重新入列
             channel.basicReject(message.getMessageProperties().getDeliveryTag(),true);
         }
     }
