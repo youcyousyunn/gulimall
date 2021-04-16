@@ -9,7 +9,10 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
+    <groupId>com.ycs.gulimall</groupId>
     <artifactId>gulimall-search</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
 
     <properties>
         <!-- 覆盖spring-boot-dependencies标签下的版本 -->
